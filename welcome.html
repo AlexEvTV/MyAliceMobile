@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phone Animation</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* Основной контейнер теперь полностью адаптивный */
+        .phone-screen {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background-color: #000;
+            overflow: hidden;
+        }
+        
+        .screen-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .welcome-image {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 50%;
+            max-height: 50%;
+            object-fit: contain;
+            opacity: 0;
+        }
+        
+        .loading-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            padding-bottom: 20%;
+        }
+        
+        .loading-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .progress-container {
+            width: 80%;
+            height: 16px;
+            background-color: #222;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 20px;
+            box-shadow: 
+                inset 1px 1px 3px rgba(0, 0, 0, 0.7),
+                inset -1px -1px 3px rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ffcc00, #ffaa00);
+            transition: width 0.1s linear;
+            position: relative;
+            border-radius: 6px;
+        }
+        
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 20px;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                rgba(255, 255, 255, 0.9), 
+                rgba(255, 255, 255, 0));
+            border-radius: 0 6px 6px 0;
+        }
+        
+        .progress-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            box-shadow: 
+                1px 0 3px rgba(0, 0, 0, 0.7),
+                -1px 0 3px rgba(0, 0, 0, 0.7);
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-screen">
+        <div class="screen-content">
+            <img id="welcomeImage" class="welcome-image" src="welcome.png" alt="Welcome">
+            <div id="loadingScreen" class="loading-screen">
+                <img class="loading-bg" src="loading.png" alt="Loading Background">
+                <div class="progress-container">
+                    <div id="progressBar" class="progress-bar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const appearTime = 300;
+        const displayTime = 1000;
+        const fadeTime = 700;
+        const loadingTime = 3500;
+        
+        const welcomeImage = document.getElementById('welcomeImage');
+        const loadingScreen = document.getElementById('loadingScreen');
+        const progressBar = document.getElementById('progressBar');
+        
+        // Анимация появления логотипа
+        setTimeout(() => {
+            welcomeImage.style.transition = `opacity ${appearTime}ms ease-in`;
+            welcomeImage.style.opacity = '1';
+            
+            // Анимация исчезновения логотипа
+            setTimeout(() => {
+                welcomeImage.style.transition = `opacity ${fadeTime}ms ease-out`;
+                welcomeImage.style.opacity = '0';
+                
+                // Показ экрана загрузки
+                setTimeout(() => {
+                    loadingScreen.style.transition = `opacity ${fadeTime}ms ease-in`;
+                    loadingScreen.style.opacity = '1';
+                    
+                    // Анимация прогресс-бара
+                    let progress = 0;
+                    const interval = setInterval(() => {
+                        progress += 1;
+                        progressBar.style.width = `${progress}%`;
+                        
+                        if (progress >= 100) {
+                            clearInterval(interval);
+                            setTimeout(() => {
+                                loadingScreen.style.transition = `opacity ${fadeTime}ms ease-out`;
+                                loadingScreen.style.opacity = '0';
+                            }, 500);
+                        }
+                    }, loadingTime / 100);
+                    
+                }, fadeTime);
+            }, appearTime + displayTime);
+        }, 0);
+    </script>
+</body>
+</html>
