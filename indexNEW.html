@@ -1,0 +1,3543 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Моя Алиса</title>
+    <style>
+        * {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #f0f0f0;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            touch-action: manipulation;
+        }
+        
+        .phone {
+            width: calc(100vh * (9/16));
+            height: 100vh;
+            max-width: 100%;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .room {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: none;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        #smileBg {
+            background-image: url('SmileBg.png');
+            display: block;
+        }
+        
+        #foodBg {
+            background-image: url('FoodBg.png');
+        }
+        
+        #toiletBg {
+            background-image: url('ToiletBg.png');
+        }
+        
+        #sleepBg {
+            background-image: url('SleepBg.png');
+        }
+        
+        .level-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 10;
+        }
+        
+        .level-display {
+            width: 12vh;
+            height: 12vh;
+            background: #ccc;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 4vh;
+            font-weight: bold;
+            box-shadow: 0 0 2vh rgba(0,0,0,0.3);
+            position: relative;
+        }
+        
+        .level-progress {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(#4CAF50 0%, #4CAF50 var(--progress), rgba(0,0,0,0.1) var(--progress), rgba(0,0,0,0.1) 100%);
+            transform: rotate(-90deg);
+            z-index: 1;
+        }
+        
+        .level-number {
+            position: relative;
+            z-index: 2;
+            width: 10vh;
+            height: 10vh;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 0 1vh rgba(0,0,0,0.2);
+        }
+        
+        .buttons-container {
+            display: flex;
+            gap: 1vh;
+            margin-top: 1vh;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 12vh;
+        }
+        
+        .settings-btn {
+            font-size: 2.5vh;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 5vh;
+            height: 5vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            box-shadow: 0 0 1vh rgba(0,0,0,0.2);
+        }
+        
+        .settings-btn:active {
+            transform: scale(0.8);
+        }
+        
+        .click-counter {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.8);
+            padding: 1vh 2vh;
+            border-radius: 2vh;
+            font-size: 3vh;
+            box-shadow: 0 0 1vh rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            z-index: 10;
+        }
+        
+        .click-counter::after {
+            content: "👆";
+            margin-left: 0.5vh;
+        }
+        
+        .crystal-counter {
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            background: rgba(255,255,255,0.8);
+            padding: 1vh 2vh;
+            border-radius: 2vh;
+            font-size: 3vh;
+            box-shadow: 0 0 1vh rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            z-index: 10;
+        }
+        
+        .alice-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 25vh;
+            height: 25vh;
+            cursor: pointer;
+            z-index: 5;
+        }
+        
+        .alice {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: transform 0.1s ease;
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            padding: 2vh 0;
+            position: absolute;
+            bottom: 0;
+            background: rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+        
+        .btn {
+            width: 8vh;
+            height: 8vh;
+            border-radius: 50%;
+            background: #FF4500;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 3.5vh;
+            cursor: pointer;
+            margin: 0 1vh;
+            box-shadow: 0 0.4vh 1vh rgba(0,0,0,0.2);
+            transition: transform 0.2s, background 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-progress {
+            position: absolute;
+            width: 100%;
+            bottom: 0;
+            left: 0;
+            background: #4CAF50;
+            transition: height 0.3s ease;
+            z-index: 1;
+        }
+        
+        .btn-content {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+        }
+        
+        .btn.completed .btn-content {
+            background: #4CAF50;
+        }
+        
+        .btn:active {
+            transform: scale(0.9);
+        }
+        
+        .light-switch {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 8vh;
+            height: 8vh;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3.5vh;
+            cursor: pointer;
+            box-shadow: 0 0 2vh rgba(0,0,0,0.3);
+            z-index: 15;
+            display: none;
+            transition: transform 0.2s;
+        }
+        
+        .light-switch:active {
+            transform: scale(0.9);
+        }
+        
+        .dark-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 5;
+            display: none;
+        }
+        
+        .sleep-timer {
+            position: absolute;
+            top: 20px;
+            right: 100px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 1vh 2vh;
+            border-radius: 2vh;
+            font-size: 3vh;
+            z-index: 15;
+            display: none;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .modal {
+            background: white;
+            padding: 3vh;
+            border-radius: 2vh;
+            width: 70%;
+            max-width: 300px;
+            text-align: center;
+            transform: scale(0.9);
+            transition: transform 0.3s;
+        }
+        
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+        
+        .modal-title {
+            font-size: 3vh;
+            margin-bottom: 2vh;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 3vh;
+        }
+        
+        .modal-btn {
+            padding: 1vh 2vh;
+            border-radius: 1vh;
+            font-size: 2.5vh;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 6vh;
+            text-align: center;
+        }
+        
+        .modal-btn-yes {
+            background: #ccc;
+            color: black;
+        }
+        
+        .modal-btn-no {
+            background: #FF4500;
+            color: white;
+        }
+        
+        .modal-btn:active {
+            opacity: 0.8;
+            transform: scale(0.95);
+        }
+        
+        .settings-modal {
+            width: 80%;
+            max-width: 350px;
+        }
+        
+        .settings-option {
+            padding: 2vh;
+            margin: 1vh 0;
+            background: #f5f5f5;
+            border-radius: 1vh;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .settings-option:active {
+            background: #e0e0e0;
+        }
+        
+        .manual-image {
+            width: 100%;
+            max-height: 60vh;
+            object-fit: contain;
+            margin: 2vh 0;
+        }
+        
+        .back-btn {
+            padding: 1.5vh;
+            background: #FF4500;
+            color: white;
+            border-radius: 1vh;
+            margin-top: 2vh;
+            cursor: pointer;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .manual-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2vh;
+        }
+        
+        .manual-btn {
+            padding: 1vh 2vh;
+            border-radius: 1vh;
+            font-size: 2vh;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-width: 8vh;
+        }
+        
+        .manual-btn-prev {
+            background: #ccc;
+            color: black;
+        }
+        
+        .manual-btn-next {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .manual-btn-done {
+            background: #4CAF50;
+            color: white;
+            display: none;
+        }
+        
+        @keyframes aliceClick {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(0.98) translateY(5px); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+        
+        .click-animation {
+            animation: aliceClick 0.2s ease;
+        }
+        
+        /* Стили для еды */
+        .food-items {
+            position: absolute;
+            bottom: 12vh;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            z-index: 5;
+        }
+        
+        .food-item {
+            width: 8vh;
+            height: 8vh;
+            font-size: 5vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: grab;
+            user-select: none;
+            position: relative;
+            transition: transform 0.2s;
+        }
+        
+        .food-item:active {
+            cursor: grabbing;
+        }
+        
+        .food-item.dragging {
+            position: absolute;
+            z-index: 100;
+            transform: scale(1.2);
+            pointer-events: none;
+        }
+        
+        @keyframes eatAnimation {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+        
+        .eating {
+            animation: eatAnimation 0.3s forwards;
+        }
+        
+        /* Стили для туалетной двери */
+        .toilet-door {
+            position: absolute;
+            width: 15vh;
+            height: 25vh;
+            right: 10%;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #d3d3d3;
+            border: 2px solid #999;
+            border-radius: 1vh;
+            cursor: grab;
+            z-index: 6;
+            transition: transform 0.3s ease;
+            touch-action: none;
+        }
+        
+        .toilet-door:active {
+            cursor: grabbing;
+        }
+        
+        /* Стили для модального окна костюмов */
+        .costumes-modal {
+            width: 90%;
+            max-width: 400px;
+            height: 70vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .costumes-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 1vh;
+        }
+        
+        .costume-category {
+            margin-bottom: 2vh;
+        }
+        
+        .costume-category-title {
+            font-size: 2.5vh;
+            margin-bottom: 1vh;
+            color: #555;
+        }
+        
+        .costume-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5vh;
+        }
+        
+        .costume-item {
+            background: #f5f5f5;
+            border-radius: 1vh;
+            padding: 1.5vh;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .costume-item:active {
+            transform: scale(0.95);
+        }
+        
+        .costume-item.locked {
+            opacity: 0.6;
+            position: relative;
+        }
+        
+        .costume-item.locked::after {
+            content: "🔒";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3vh;
+        }
+        
+        .costume-image {
+            width: 100%;
+            height: 10vh;
+            object-fit: contain;
+            margin-bottom: 1vh;
+        }
+        
+        .costume-name {
+            font-size: 2vh;
+            font-weight: bold;
+            margin-bottom: 0.5vh;
+        }
+        
+        .costume-info {
+            font-size: 1.8vh;
+            color: #777;
+        }
+        
+        .costume-price {
+            font-size: 1.8vh;
+            margin-top: 0.5vh;
+            color: #4CAF50;
+        }
+        
+        .costume-price.locked {
+            color: #FF4500;
+        }
+        
+        .costume-scrollbar {
+            height: 0.5vh;
+            background: #eee;
+            border-radius: 0.5vh;
+            margin-top: 1vh;
+            position: relative;
+        }
+        
+        .costume-scrollbar-thumb {
+            position: absolute;
+            height: 100%;
+            background: #FF4500;
+            border-radius: 0.5vh;
+            width: 30%;
+            left: 0;
+        }
+        
+        .selected-costume {
+            border: 2px solid #4CAF50;
+            background: #e8f5e9;
+        }
+        
+        /* Стили для модального окна магазина */
+        .shop-modal {
+            width: 90%;
+            max-width: 400px;
+            height: 70vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .shop-container {
+            flex-grow: 1;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 1vh;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 0;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+        }
+        
+        .shop-category {
+            margin-bottom: 0;
+            scroll-snap-align: start;
+            min-width: 100%;
+        }
+        
+        .shop-category-title {
+            font-size: 2.5vh;
+            margin-bottom: 1vh;
+            color: #555;
+        }
+        
+        .shop-items {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+        
+        .shop-item {
+            background: transparent;
+            border-radius: 1vh;
+            padding: 0;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+            height: 20vh;
+            width: 100%;
+            margin: 0;
+        }
+        
+        .shop-item:active {
+            transform: scale(0.95);
+        }
+        
+        .shop-item.locked {
+            opacity: 0.6;
+            position: relative;
+        }
+        
+        .shop-item.locked::after {
+            content: "🔒";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3vh;
+        }
+        
+        .shop-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .shop-name {
+            font-size: 2.5vh;
+            font-weight: bold;
+            margin-bottom: 0.5vh;
+            display: none;
+        }
+        
+        .shop-description {
+            font-size: 1.8vh;
+            color: #777;
+            margin-bottom: 1vh;
+            display: none;
+        }
+        
+        .shop-price {
+            font-size: 2vh;
+            margin-top: 0.5vh;
+            color: #4CAF50;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .shop-price.locked {
+            color: #FF4500;
+        }
+        
+        .shop-scrollbar {
+            height: 0.5vh;
+            background: #eee;
+            border-radius: 0.5vh;
+            margin-top: 1vh;
+            position: relative;
+        }
+        
+        .shop-scrollbar-thumb {
+            position: absolute;
+            height: 100%;
+            background: #FF4500;
+            border-radius: 0.5vh;
+            width: 30%;
+            left: 0;
+        }
+        
+        /* Стили для ввода промокода */
+        .promo-section {
+            margin-top: 2vh;
+            padding-top: 2vh;
+            border-top: 1px solid #eee;
+            max-width: 100%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 1vh;
+        }
+        
+        .promo-input {
+            flex: 1;
+            padding: 1.5vh;
+            border: 1px solid #ccc;
+            border-radius: 1vh;
+            font-size: 2vh;
+            text-align: center;
+        }
+        
+        .promo-btn {
+            padding: 1.5vh;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 1vh;
+            cursor: pointer;
+            font-size: 2vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: auto;
+            min-width: 10vh;
+        }
+        
+        .promo-btn:active {
+            background: #3e8e41;
+        }
+        
+        .promo-result {
+            margin-top: 2vh;
+            font-size: 2vh;
+            color: #333;
+            max-width: 100%;
+            overflow-wrap: break-word;
+        }
+        
+        .promo-error {
+            color: #FF4500;
+        }
+        
+        .promo-success {
+            color: #4CAF50;
+        }
+        
+        /* Кнопка магазина под кнопками настроек */
+        .shop-btn-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 1vh;
+        }
+        
+        .shop-btn {
+            font-size: 2.5vh;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 5vh;
+            height: 5vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            box-shadow: 0 0 1vh rgba(0,0,0,0.2);
+        }
+        
+        .shop-btn:active {
+            transform: scale(0.8);
+        }
+        
+        /* Модальное окно подтверждения очистки данных */
+        .confirm-clear-modal {
+            width: 80%;
+            max-width: 300px;
+        }
+        
+        .confirm-clear-text {
+            font-size: 2.5vh;
+            margin-bottom: 3vh;
+        }
+        
+        /* Модальное окно результата покупки */
+        .purchase-modal {
+            width: 80%;
+            max-width: 300px;
+        }
+        
+        .purchase-result {
+            font-size: 2.5vh;
+            margin-bottom: 3vh;
+        }
+        
+        /* Стили для пасса */
+        .pass-modal {
+            width: 90%;
+            max-width: 400px;
+            height: 80vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background-image: url('AETpassBg.png');
+            background-size: cover;
+        }
+
+        .pass-header {
+            width: 100%;
+            height: 15vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 2vh;
+        }
+
+        .pass-header-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .pass-tabs {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 2vh;
+        }
+
+        .pass-tab {
+            padding: 1vh 2vh;
+            background: #f5f5f5;
+            border-radius: 1vh;
+            cursor: pointer;
+            font-size: 2vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-width: 10vh;
+        }
+
+        .pass-tab.active {
+            background: #FF4500;
+            color: white;
+        }
+
+        .pass-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 1vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pass-item {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 1vh;
+            padding: 1.5vh;
+            margin-bottom: 2vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .pass-item-image {
+            width: 10vh;
+            height: 10vh;
+            object-fit: contain;
+            margin-right: 2vh;
+        }
+
+        .pass-item-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pass-item-name {
+            font-size: 2vh;
+            font-weight: bold;
+            margin-bottom: 1vh;
+        }
+
+        .pass-item-task {
+            font-size: 1.8vh;
+            color: #555;
+            margin-bottom: 1vh;
+        }
+
+        .pass-progress-container {
+            width: 100%;
+            height: 1vh;
+            background: #ddd;
+            border-radius: 0.5vh;
+            margin-top: 1vh;
+            position: relative;
+        }
+
+        .pass-progress-bar {
+            position: absolute;
+            height: 100%;
+            background: #FF4500;
+            border-radius: 0.5vh;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .pass-item-premium {
+            width: 10vh;
+            height: 10vh;
+            object-fit: contain;
+            margin-left: 2vh;
+            position: relative;
+        }
+
+        .pass-item-premium.locked::after {
+            content: "🔒";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3vh;
+        }
+
+
+        .pass-item-claim {
+            padding: 1vh 2vh;
+            background: gold;
+            color: #333;
+            border: none;
+            border-radius: 1vh;
+            font-size: 2vh;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 1vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-width: 10vh;
+        }
+
+        .pass-item-claim-regular {
+            background: #4CAF50;
+            color: white;
+            margin-right: 1vh;
+        }
+
+        .pass-item-claim-premium {
+            background: gold;
+            color: #333;
+        }
+
+        .selected-costume {
+            border: 2px solid #4CAF50;
+            background: #e8f5e9;
+        }
+
+        .pass-scrollbar {
+            height: 0.5vh;
+            background: #eee;
+            border-radius: 0.5vh;
+            margin-top: 1vh;
+            position: relative;
+        }
+
+        .pass-scrollbar-thumb {
+            position: absolute;
+            height: 100%;
+            background: #FF4500;
+            border-radius: 0.5vh;
+            width: 30%;
+            left: 0;
+        }
+
+        .pass-footer {
+            display: flex;
+            justify-content: space-between;
+            padding: 1vh;
+            gap: 1vh;
+        }
+
+        .buy-pass-btn {
+            padding: 1vh 2vh;
+            background: gold;
+            color: #333;
+            border: none;
+            border-radius: 1vh;
+            font-size: 2vh;
+            font-weight: bold;
+            cursor: pointer;
+            flex: 1;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Уведомление о получении */
+        .reward-notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4CAF50;
+            color: white;
+            padding: 1.5vh 3vh;
+            border-radius: 2vh;
+            font-size: 2.5vh;
+            z-index: 1000;
+            box-shadow: 0 0 2vh rgba(0,0,0,0.3);
+            animation: slideIn 0.3s forwards, fadeOut 0.3s 2s forwards;
+        }
+
+        @keyframes slideIn {
+            from { top: -100px; opacity: 0; }
+            to { top: 20px; opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        /* Модальное окно отсутствия премиума */
+        .no-premium-modal {
+            width: 90%;
+            max-width: 350px;
+            text-align: center;
+        }
+
+        .no-premium-image {
+            width: 100%;
+            max-height: 40vh;
+            object-fit: contain;
+            margin-bottom: 2vh;
+        }
+
+        /* Новые стили для кнопок в пассе */
+        .pass-buttons-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 1vh;
+        }
+
+        .pass-claimed-text {
+            font-size: 1.8vh;
+            color: #4CAF50;
+            text-align: center;
+            margin-top: 1vh;
+            width: 100%;
+        }
+
+        .pass-claimed-text-premium {
+            color: gold;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone">
+        <div class="room" id="smileBg">
+            <div class="level-container">
+                <div class="level-display" id="levelDisplay">
+                    <div class="level-progress" id="levelProgress"></div>
+                    <div class="level-number">0</div>
+                </div>
+                <div class="buttons-container">
+                    <div class="settings-btn costumes-btn">👕</div>
+                    <div class="settings-btn settings-btn">⚙️</div>
+                    <div class="settings-btn shop-btn" id="shopBtn">🛒</div>
+                    <div class="settings-btn pass-btn" id="passBtn">🎫</div>
+                </div>
+            </div>
+            <div class="click-counter">
+                <span id="clicks">0</span>
+            </div>
+            <div class="crystal-counter">
+                <span id="crystals">0</span> 💎
+            </div>
+            <div class="alice-container" id="aliceContainer">
+                <img id="alice" class="alice" src="Alice.png" alt="Алиса">
+            </div>
+        </div>
+        
+        <div class="room" id="foodBg">
+            <div class="level-container">
+                <div class="level-display">
+                    <div class="level-progress"></div>
+                    <div class="level-number">0</div>
+                </div>
+                <div class="buttons-container">
+                    <div class="settings-btn costumes-btn">👕</div>
+                    <div class="settings-btn settings-btn">⚙️</div>
+                    <div class="settings-btn shop-btn" id="shopBtn2">🛒</div>
+                    <div class="settings-btn pass-btn" id="passBtn2">🎫</div>
+                </div>
+            </div>
+            <div class="alice-container" id="foodAliceContainer">
+                <img class="alice" src="Alice.png" alt="Алиса">
+            </div>
+            <div class="food-items" id="foodItems">
+                <!-- Еда будет добавляться динамически -->
+            </div>
+        </div>
+        
+        <div class="room" id="toiletBg">
+            <div class="level-container">
+                <div class="level-display">
+                    <div class="level-progress"></div>
+                    <div class="level-number">0</div>
+                </div>
+                <div class="buttons-container">
+                    <div class="settings-btn costumes-btn">👕</div>
+                    <div class="settings-btn settings-btn">⚙️</div>
+                    <div class="settings-btn shop-btn" id="shopBtn3">🛒</div>
+                    <div class="settings-btn pass-btn" id="passBtn3">🎫</div>
+                </div>
+            </div>
+            <div class="alice-container">
+                <img class="alice" src="Alice.png" alt="Алиса">
+            </div>
+            <!-- Дверь будет добавляться динамически -->
+        </div>
+        
+        <div class="room" id="sleepBg">
+            <div class="level-container">
+                <div class="level-display">
+                    <div class="level-progress"></div>
+                    <div class="level-number">0</div>
+                </div>
+                <div class="buttons-container">
+                    <div class="settings-btn costumes-btn">👕</div>
+                    <div class="settings-btn settings-btn">⚙️</div>
+                    <div class="settings-btn shop-btn" id="shopBtn4">🛒</div>
+                    <div class="settings-btn pass-btn" id="passBtn4">🎫</div>
+                </div>
+            </div>
+            <div class="alice-container">
+                <img class="alice" src="Alice.png" alt="Алиса">
+            </div>
+            <div class="dark-overlay" id="darkOverlay"></div>
+            <div class="sleep-timer" id="sleepTimer">1:00</div>
+        </div>
+        
+        <div class="light-switch" id="lightSwitch">💡</div>
+        
+        <div class="buttons">
+            <div class="btn" id="smileBtn" onclick="changeRoom('smileBg')">
+                <div class="btn-progress" id="smileProgress"></div>
+                <div class="btn-content">😀</div>
+            </div>
+            <div class="btn" id="foodBtn" onclick="changeRoom('foodBg')">
+                <div class="btn-progress" id="foodProgress"></div>
+                <div class="btn-content">🍴</div>
+            </div>
+            <div class="btn" id="toiletBtn" onclick="changeRoom('toiletBg')">
+                <div class="btn-progress" id="toiletProgress"></div>
+                <div class="btn-content">🚽</div>
+            </div>
+            <div class="btn" id="sleepBtn" onclick="changeRoom('sleepBg')">
+                <div class="btn-progress" id="sleepProgress"></div>
+                <div class="btn-content">🌙</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно настроек -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal settings-modal">
+            <div class="modal-title">Настройки</div>
+            <div class="settings-option" id="howToPlay">Как играть?</div>
+            <div class="back-btn" id="backFromSettings">Назад</div>
+        </div>
+    </div>
+
+    <!-- Модальное окно костюмов -->
+    <div class="modal-overlay" id="costumesModal">
+        <div class="modal costumes-modal">
+            <div class="modal-title">Костюмы</div>
+            <div class="costumes-container" id="costumesContainer">
+                <!-- Костюмы будут добавляться динамически -->
+            </div>
+            <div class="costume-scrollbar">
+                <div class="costume-scrollbar-thumb" id="scrollbarThumb"></div>
+            </div>
+            <div class="back-btn" id="backFromCostumes">Назад</div>
+        </div>
+    </div>
+
+    <!-- Модальное окно магазина -->
+    <div class="modal-overlay" id="shopModal">
+        <div class="modal shop-modal">
+            <div class="modal-title">Магазин</div>
+            <div class="shop-container" id="shopContainer">
+                <!-- Акции будут добавляться динамически -->
+            </div>
+            <div class="shop-scrollbar">
+                <div class="shop-scrollbar-thumb" id="shopScrollbarThumb"></div>
+            </div>
+            <div class="promo-section">
+                <input type="text" class="promo-input" id="promoCodeInput" placeholder="Введите промокод">
+                <button class="promo-btn" id="applyPromoBtn">Активировать</button>
+            </div>
+            <div class="promo-result" id="promoResult"></div>
+            <div class="back-btn" id="backFromShop">Назад</div>
+        </div>
+    </div>
+
+    <!-- Модальное окно инструкции -->
+    <div class="modal-overlay" id="manualModal">
+        <div class="modal" style="max-width: 400px;">
+            <div class="modal-title">Как играть</div>
+            <img src="1Manual.png" class="manual-image" id="manualImage" alt="Инструкция">
+            <div class="manual-buttons">
+                <div class="manual-btn manual-btn-prev" id="prevManualBtn" style="display: none;">Назад</div>
+                <div class="manual-btn manual-btn-next" id="nextManualBtn">Далее</div>
+                <div class="manual-btn manual-btn-done" id="doneManualBtn" style="display: none;">Готово!</div>
+            </div>
+            <div class="back-btn" id="backFromManual">Назад</div>
+        </div>
+    </div>
+
+    <!-- Модальное окно подтверждения очистки данных -->
+    <div class="modal-overlay" id="confirmClearModal">
+        <div class="modal confirm-clear-modal">
+            <div class="modal-title">Очистка данных</div>
+            <div class="confirm-clear-text">Вы уверены, что хотите очистить все данные игры?</div>
+            <div class="modal-buttons">
+                <div class="modal-btn modal-btn-yes" id="confirmClearBtn">Да</div>
+                <div class="modal-btn modal-btn-no" id="cancelClearBtn">Нет</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно результата покупки -->
+    <div class="modal-overlay" id="purchaseModal">
+        <div class="modal purchase-modal">
+            <div class="modal-title">Покупка</div>
+            <div class="purchase-result" id="purchaseResult"></div>
+            <div class="back-btn" id="backFromPurchase">ОК</div>
+        </div>
+    </div>
+
+    <!-- Модальное окно пасса -->
+    <div class="modal-overlay" id="passModal">
+        <div class="modal pass-modal">
+            <div class="pass-header">
+                <img src="aetpasstitle.png" class="pass-header-image" alt="AET Pass">
+            </div>
+            <div class="pass-tabs">
+                <div class="pass-tab active" id="passTab">Пасс</div>
+                <div class="pass-tab" id="questsTab">Квесты</div>
+            </div>
+            <div class="pass-container" id="passContainer">
+                <!-- Пасс будет добавляться динамически -->
+            </div>
+            <div class="pass-footer">
+                <div class="back-btn" id="backFromPass">Назад</div>
+                <button class="buy-pass-btn" id="buyPassBtn">Купить за 79💎</button>
+            </div>
+            <div class="pass-scrollbar">
+                <div class="pass-scrollbar-thumb" id="passScrollbarThumb"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно отсутствия премиума -->
+    <div class="modal-overlay" id="noPremiumModal">
+        <div class="modal no-premium-modal">
+            <div class="modal-title">AET Premium Pass</div>
+            <div class="back-btn" id="backFromNoPremium">ОК</div>
+        </div>
+    </div>
+
+    <!-- Уведомление о получении -->
+    <div class="reward-notification" id="rewardNotification" style="display: none;"></div>
+
+    <script>
+        // Настройки пасса
+        const passConfig = {
+            Season: 1, // Номер сезона (можно менять)
+            PassPng: "aetpasstitle.png", // Изображение пасса (верхняя часть)
+            PassBg: "AETpassBg.png" // Фон пасса
+        };
+
+        let clickCount = localStorage.getItem('aliceClickCount') ? parseInt(localStorage.getItem('aliceClickCount')) : 0;
+        let xp = localStorage.getItem('aliceXP') ? parseInt(localStorage.getItem('aliceXP')) : 0;
+        let level = localStorage.getItem('aliceLevel') ? parseInt(localStorage.getItem('aliceLevel')) : 0;
+        let selectedCostume = localStorage.getItem('aliceSelectedCostume') || 'default';
+        let usedPromoCodes = JSON.parse(localStorage.getItem('aliceUsedPromoCodes')) || [];
+        let crystals = localStorage.getItem('aliceCrystals') ? parseInt(localStorage.getItem('aliceCrystals')) : 0;
+        let tokens = localStorage.getItem(`aliceTokens_season_${passConfig.Season}`) ? parseInt(localStorage.getItem(`aliceTokens_season_${passConfig.Season}`)) : 0;
+        let hasPremiumPass = localStorage.getItem(`aliceHasPremiumPass_season_${passConfig.Season}`) === 'true';
+        let manualPage = 1;
+        const maxManualPages = 3;
+        
+        // Добавляем переменные для отслеживания кликов для квестов
+        let questClicks = JSON.parse(localStorage.getItem('aliceQuestClicks')) || {
+            clicksForQuests: 0,
+            lastResetTime: Date.now()
+        };
+        
+        // Настройка задержки между кликами (в миллисекундах)
+        const clickDelay = 150; // 200ms задержка между кликами
+        let lastClickTime = 0;
+        
+        // Состояния выполнения действий
+        let actionsCompleted = JSON.parse(localStorage.getItem('aliceActionsCompleted')) || {
+            smile: false,
+            food: false,
+            toilet: false,
+            sleep: false
+        };
+        
+        // Прогресс выполнения каждого действия
+        let actionsProgress = JSON.parse(localStorage.getItem('aliceActionsProgress')) || {
+            smile: 0,
+            food: 0,
+            toilet: 0,
+            sleep: 0
+        };
+        
+        // Информация о костюмах
+        const costumes = {
+            default: {
+                name: "Алиса",
+                titleImage: "TitleAlice.png",
+                mainImage: "Alice.png",
+                tapImage: "AliceTap.png",
+                clicksRequired: 0,
+                levelRequired: 0,
+                infoText: "Изначальный",
+                priceText: "Бесплатно"
+            },
+            old: {
+                name: "Алиса Олд",
+                titleImage: "TitleAliceOld.png",
+                mainImage: "AliceOld.png",
+                tapImage: "AliceTapOld.png",
+                clicksRequired: 50,
+                levelRequired: 0,
+                infoText: "Редкий",
+                priceText: "50 кликов"
+            },
+            pink: {
+                name: "Алиса в розовой кофте",
+                titleImage: "TitleAlicePink.png",
+                mainImage: "AlicePink.png",
+                tapImage: "AliceTapPink.png",
+                clicksRequired: 0,
+                levelRequired: 1,
+                infoText: "Редкий",
+                priceText: "Уровень 1"
+            },
+			withoutashirt: {
+                name: "Алиса без рубашки",
+                titleImage: "TitleAliceWithoutAshirt.png",
+                mainImage: "AliceWithoutAshirt.png",
+                tapImage: "AliceTapWithoutAshirt.png",
+                clicksRequired: 0,
+                levelRequired: 3,
+                infoText: "Сверхредкий",
+                priceText: "Уровень 3"
+            },
+            toy: {
+                name: "Игрушка Алиса",
+                titleImage: "TitleAliceToy.png",
+                mainImage: "AliceToy.png",
+                tapImage: "AliceTapToy.png",
+                clicksRequired: 0,
+                levelRequired: 5,
+                infoText: "Эпический",
+                priceText: "Уровень 5"
+            },
+			stylish: {
+                name: "Стильная Алиса",
+                titleImage: "TitleAliceStylish.png",
+                mainImage: "AliceStylish.png",
+                tapImage: "AliceTapStylish.png",
+                clicksRequired: 0,
+                levelRequired: 10,
+                infoText: "Эпический",
+                priceText: "Уровень 10"
+            },
+			sanyastylish: {
+                name: "Стильный Саня",
+                titleImage: "TitleSanyaStylish.png",
+                mainImage: "SanyaStylish.png",
+                tapImage: "SanyaTapStylish.png",
+                clicksRequired: 0,
+                levelRequired: 10000000000,
+                infoText: "Эпический",
+                priceText: "Ищите в магазине"
+            },
+            tenna: {
+                name: "Тенна",
+                titleImage: "TitleTenna.png",
+                mainImage: "AliceTenna.png",
+                tapImage: "AliceTapTenna.png",
+                clicksRequired: 0,
+                levelRequired: 10000,
+                infoText: "Мифический",
+                priceText: "Промокод"
+            },
+            mudriycat: {
+                name: "Мудрый кот",
+                titleImage: "TitleMudriyCat.png",
+                mainImage: "AliceMudriyCat.png",
+                tapImage: "AliceTapMudriyCat.png",
+                clicksRequired: 0,
+                levelRequired: 100000,
+                infoText: "Мифический",
+                priceText: "Промокод"
+            },
+			alicesanya: {
+                name: "Алиса в костюме Сани",
+                titleImage: "TitleAliceSanya.png",
+                mainImage: "AliceSanya.png",
+                tapImage: "AliceTapSanya.png",
+                clicksRequired: 1000,
+                levelRequired: 0,
+                infoText: "Мифический",
+                priceText: "1.000 кликов"
+            },
+            gold: {
+                name: "Золотая Алиса",
+                titleImage: "TitleAliceGold.png",
+                mainImage: "AliceGold.png",
+                tapImage: "AliceTapGold.png",
+                clicksRequired: 5000,
+                levelRequired: 0,
+                infoText: "Легендарный",
+                priceText: "5.000 кликов"
+            },
+			alicefangirl: {
+                name: "Алиса Фан Гёрл",
+                titleImage: "TitleAliceFanGirl.png",
+                mainImage: "AliceFanGirl.png",
+                tapImage: "AliceTapFanGirl.png",
+                clicksRequired: 0,
+                levelRequired: 10000000,
+                infoText: "Легендарный",
+                priceText: "Промокод"
+            },
+            sanya: {
+                name: "Саня",
+                titleImage: "TitleSanya.png",
+                mainImage: "Sanya.png",
+                tapImage: "SanyaTap.png",
+                clicksRequired: 0,
+                levelRequired: 24,
+                infoText: "Легендарный",
+                priceText: "Ищите в магазине"
+            },
+            alicespir: {
+                name: "Алиса в костюме Спир Тира",
+                titleImage: "TitleAliceSpirTir.png",
+                mainImage: "AliceSpirTir.png",
+                tapImage: "AliceTapSpirTir.png",
+                clicksRequired: 0,
+                levelRequired: 1000000,
+                infoText: "Сезонный",
+                priceText: "Сезон 1 (Бесплатно)"
+            },
+			spirtir: {
+                name: "Спир тир",
+                titleImage: "TitleSpirTir.png",
+                mainImage: "SpirTir.png",
+                tapImage: "SpirTirTap.png",
+                clicksRequired: 0,
+                levelRequired: 1000000,
+                infoText: "Сезонный",
+                priceText: "Сезон 1 (AET Premium Pass)"
+            }
+        };        
+        // Разблокированные костюмы
+        let unlockedCostumes = JSON.parse(localStorage.getItem('aliceUnlockedCostumes')) || {
+            default: true,
+            old: false,
+            pink: false,
+			withoutashirt: false,
+			toy: false,
+			stylish: false,			
+			sanyastylish: false,
+            tenna: false,
+            mudriycat: false,
+			alicesanya: false,
+            gold: false,
+            alicefangirl: false,
+			sanya: false,
+			alicespir: false,			
+			alicespir: false
+        };
+        
+        // Доступные промокоды (обновленный формат)
+        const promoCodes = {
+            "MINI_UPDATE_11.02.26": { type: "crystals", value: 30 },            
+            "SIXSEVEN": { type: "clicks", value: 67 },            
+            "PSYCHE": { type: "clicks", value: 24 },
+            "ALICE100": { type: "clicks", value: 100 },
+            "REDLLOWSHINE": { type: "clicks", value: 50 },
+            "MYALICEMOBILE": { type: "clicks", value: 50 },
+			"HOTLEGS": { type: "clicks", value: 100 },
+			"KISS": { type: "clicks", value: 50 },			
+            "CRYSTALAUGUSTUPDATE": { type: "crystals", value: 10 },
+            "DELTARUNETENNASKIN2025": { type: "costume", value: "tenna" },
+            "TIKTOKMUDRIYCATSKIN": { type: "costume", value: "mudriycat" },
+            "OLDMODELALICEFANGIRL": { type: "costume", value: "alicefangirl" },				
+						
+            "2OJF94YEIQ": { type: "clicks", value: 10000 },   // Платный промокод
+            "R5T8M3Q9X2": { type: "clicks", value: 5000 },   // Платный промокод
+            "S2J7M5K3N8": { type: "crystals", value: 79 }, // Платный промокод
+			"7H2K9D4L1P": { type: "crystals", value: 149 },  // Платный промокод 
+			"16TZQ0VART": { type: "crystals", value: 249 },  // Платный промокод 
+        };
+        
+        // Акции в магазине (обновленный формат)
+        const stocks = {
+            stock0: {
+                type: "clicks",
+                value: 50,
+                price: { type: "free" },
+                requirements: { clicks: 0, level: 0 },
+                title: "Stock0Title.png",
+                name: "ПОДАРОК!",
+                description: "50 кликов"
+            },
+            stock1: {
+                type: "crystals",
+                value: 5,
+                price: { type: "free" },
+                requirements: { clicks: 0, level: 0 },
+                title: "Stock1Title.png",
+                name: "ПОДАРОК!",
+                description: "5 кристаллов"
+			},	
+			stock2: {
+                type: "costume", // Может быть "costume", "clicks", "crystals", "pass"
+                value: ["sanya"], // Костюм и клики
+                price: { type: "crystals", value: 29 }, // Цена в кликах
+                requirements: { clicks: 0, level: 0 }, // Требования для появления
+                title: "StockSanyaTitle.png",
+                name: "Саня",
+                description: "Саня"
+            },	
+			stock3: {
+                type: "costume", // Может быть "costume", "clicks", "crystals", "pass"
+                value: ["stylish", "sanyastylish"], // Костюм и клики
+                price: { type: "crystals", value: 49 }, // Цена в кликах
+                requirements: { clicks: 0, level: 0 }, // Требования для появления
+                title: "StockRetroTitle.png",
+                name: "Скины коллекции ретро!",
+                description: "Ретро скины"
+            }
+        };
+        
+        // Пасс награды
+        const passRewards = {
+            1: {
+                png: "pass20crystals.png",
+                pngPremium: "passPremium20crystals.png",
+                giftUsually: { type: "crystals", value: 20 },
+                giftPremium: { type: "crystals", value: 20 }, // Сделано
+                needTokens: 100
+            },
+			2: {
+                png: "pass10clicks.png",
+                pngPremium: "passPremium40clicks.png",
+                giftUsually: { type: "clicks", value: 10 },
+                giftPremium: { type: "clicks", value: 40 }, // Сделано
+                needTokens: 200
+            },
+			3: {
+                png: "pass5clicks.png",
+                pngPremium: "passPremium50clicks.png",
+                giftUsually: { type: "clicks", value: 5 },
+                giftPremium: { type: "clicks", value: 50 }, // Сделано
+                needTokens: 300
+            },
+			4: {
+                png: "pass10clicks.png",
+                pngPremium: "passPremium40clicks.png",
+                giftUsually: { type: "clicks", value: 10 },
+                giftPremium: { type: "clicks", value: 40 }, // Сделано
+                needTokens: 400
+            },
+			5: {
+                png: "pass20crystals.png",
+                pngPremium: "passPremium20crystals.png",
+                giftUsually: { type: "crystals", value: 20 },
+                giftPremium: { type: "crystals", value: 20 }, // Сделано
+                needTokens: 500
+            },
+			6: {
+                png: "pass10clicks.png",
+                pngPremium: "passPremium30clicks.png",
+                giftUsually: { type: "clicks", value: 10 },
+                giftPremium: { type: "clicks", value: 30 }, // Сделано
+                needTokens: 550
+            },
+			7: {
+                png: "pass5clicks.png",
+                pngPremium: "passPremium40clicks.png",
+                giftUsually: { type: "clicks", value: 5 },
+                giftPremium: { type: "clicks", value: 40 }, // Сделано
+                needTokens: 600
+            },
+			8: {
+                png: "pass10clicks.png",
+                pngPremium: "passPremium50clicks.png",
+                giftUsually: { type: "clicks", value: 10 },
+                giftPremium: { type: "clicks", value: 50 }, // Сделано
+                needTokens: 650
+            },
+			9: {
+                png: "pass5clicks.png",
+                pngPremium: "passPremium40clicks.png",
+                giftUsually: { type: "clicks", value: 5 },
+                giftPremium: { type: "clicks", value: 40 }, // Сделано
+                needTokens: 700
+            },
+			10: {
+                png: "pass20crystals.png",
+                pngPremium: "passPremium20crystals.png",
+                giftUsually: { type: "crystals", value: 20 },
+                giftPremium: { type: "crystals", value: 20 }, // Сделано
+                needTokens: 750
+            },
+			11: {
+                png: "pass10clicks.png",
+                pngPremium: "passPremium30clicks.png",
+                giftUsually: { type: "clicks", value: 10 },
+                giftPremium: { type: "clicks", value: 30 },  // Сделано
+                needTokens: 800
+            },
+			12: {
+                png: "pass20clicks.png",
+                pngPremium: "passPremium40clicks.png",
+                giftUsually: { type: "clicks", value: 20 },
+                giftPremium: { type: "clicks", value: 40 },  // Сделано
+                needTokens: 850
+            },
+			13: {
+                png: "pass10clicks.png",
+                pngPremium: "passPremium50clicks.png",
+                giftUsually: { type: "clicks", value: 10 },
+                giftPremium: { type: "clicks", value: 50 },   // Сделано
+                needTokens: 900
+            },
+			14: {
+                png: "pass20crystals.png",
+                pngPremium: "passPremium40clicks.png",
+                giftUsually: { type: "crystals", value: 20 },
+                giftPremium: { type: "clicks", value: 40 },  // Сделано
+                needTokens: 950
+            },
+            15: {
+                png: "TitleAliceSpirTir.png",
+                pngPremium: "TitleSpirTir.png",
+                giftUsually: { type: "costume", value: "alicespir" },
+                giftPremium: { type: "costume", value: "spirtir" },  // Сделано
+                needTokens: 1000
+            }
+        };
+        
+        // Квесты
+        const quests = {
+ 		    0: {
+                need: { level: 100000 },
+                giftTokens: 0,
+                name: "50 токенов и 1 кристалл",
+                giftnameText: "50 токенов и 1 кристалл",
+                png: "quest1.png",
+                description: "Получайте 50 токенов и 1 кристалл за 4 пройденных действий в 4 комнатах!"
+            },
+            1: {
+                need: { clicks: 10 },
+                giftTokens: 50,
+                name: "50 токенов",
+                giftnameText: "50 токенов",
+                png: "quest1.png",
+                description: "Сделайте 10 кликов"
+            },
+            2: {
+                need: { level: 5 },
+                giftTokens: 100,
+                name: "100 токенов",
+                giftnameText: "100 токенов",
+                png: "quest2.png",
+                description: "Достигните 5 уровня"
+            },
+            3: {
+                need: { clicks: 50 },
+                giftTokens: 200,
+                name: "200 токенов",
+                giftnameText: "200 токенов",
+                png: "quest3.png",
+                description: "Сделайте 50 кликов"
+            },
+            4: {
+                need: { level: 10 },
+                giftTokens: 300,
+                name: "300 токенов",
+                giftnameText: "300 токенов",
+                png: "quest4.png",
+                description: "Достигните 10 уровня"
+            },
+            5: {
+                need: { clicks: 100 },
+                giftTokens: 50,
+                name: "50 токенов",
+                giftnameText: "50 токенов",
+                png: "quest1.png",
+                description: "Сделайте 100 кликов"
+            },
+            6: {
+                need: { level: 15 },
+                giftTokens: 100,
+                name: "100 токенов",
+                giftnameText: "100 токенов",
+                png: "quest2.png",
+                description: "Достигните 15 уровня"
+            },
+            7: {
+                need: { clicks: 200 },
+                giftTokens: 200,
+                name: "200 токенов",
+                giftnameText: "200 токенов",
+                png: "quest3.png",
+                description: "Сделайте 200 кликов"
+            },
+            8: {
+                need: { level: 20 },
+                giftTokens: 300,
+                name: "300 токенов",
+                giftnameText: "300 токенов",
+                png: "quest4.png",
+                description: "Достигните 20 уровня"
+            },
+            9: {
+                need: { clicks: 300 },
+                giftTokens: 50,
+                name: "50 токенов",
+                giftnameText: "50 токенов",
+                png: "quest1.png",
+                description: "Сделайте 300 кликов"
+            },
+            10: {
+                need: { level: 25 },
+                giftTokens: 100,
+                name: "100 токенов",
+                giftnameText: "100 токенов",
+                png: "quest2.png",
+                description: "Достигните 25 уровня"
+            },
+            11: {
+                need: { clicks: 400 },
+                giftTokens: 200,
+                name: "200 токенов",
+                giftnameText: "200 токенов",
+                png: "quest3.png",
+                description: "Сделайте 400 кликов"
+            },
+            12: {
+                need: { level: 30 },
+                giftTokens: 300,
+                name: "300 токенов",
+                giftnameText: "300 токенов",
+                png: "quest4.png",
+                description: "Достигните 30 уровня"
+            },
+            13: {
+                need: { clicks: 500 },
+                giftTokens: 50,
+                name: "50 токенов",
+                giftnameText: "50 токенов",
+                png: "quest1.png",
+                description: "Сделайте 500 кликов"
+            },
+            14: {
+                need: { level: 35 },
+                giftTokens: 100,
+                name: "100 токенов",
+                giftnameText: "100 токенов",
+                png: "quest2.png",
+                description: "Достигните 35 уровня"
+            },
+            15: {
+                need: { clicks: 600 },
+                giftTokens: 200,
+                name: "200 токенов",
+                giftnameText: "200 токенов",
+                png: "quest3.png",
+                description: "Сделайте 600 кликов"
+            },
+            16: {
+                need: { level: 40 },
+                giftTokens: 300,
+                name: "300 токенов",
+                giftnameText: "300 токенов",
+                png: "quest4.png",
+                description: "Достигните 40 уровня"
+            },
+            17: {
+                need: { clicks: 700 },
+                giftTokens: 50,
+                name: "50 токенов",
+                giftnameText: "50 токенов",
+                png: "quest1.png",
+                description: "Сделайте 700 кликов"
+            },
+            18: {
+                need: { level: 45 },
+                giftTokens: 100,
+                name: "100 токенов",
+                giftnameText: "100 токенов",
+                png: "quest2.png",
+                description: "Достигните 45 уровня"
+            }
+        };			
+        
+        // Купленные акции
+        let purchasedStocks = JSON.parse(localStorage.getItem('alicePurchasedStocks')) || {};
+        
+        // Для отслеживания новых акций
+        let newStocks = JSON.parse(localStorage.getItem('aliceNewStocks')) || {};
+        
+        // Полученные награды пасса
+        let collectedPassRewards = JSON.parse(localStorage.getItem(`aliceCollectedPassRewards_season_${passConfig.Season}`)) || {};
+        
+        // Завершенные квесты
+        let completedQuests = JSON.parse(localStorage.getItem('aliceCompletedQuests')) || {};
+        
+        const levelDisplay = document.getElementById('levelDisplay');
+        const levelNumber = document.querySelector('.level-number');
+        const levelProgress = document.getElementById('levelProgress');
+        const clickCounter = document.getElementById('clicks');
+        const crystalCounter = document.getElementById('crystals');
+        const lightSwitch = document.getElementById('lightSwitch');
+        const darkOverlay = document.getElementById('darkOverlay');
+        const aliceContainer = document.getElementById('aliceContainer');
+        const foodAliceContainer = document.getElementById('foodAliceContainer');
+        const foodItems = document.getElementById('foodItems');
+        const sleepTimer = document.getElementById('sleepTimer');
+        const aliceImg = document.getElementById('alice');
+        
+        // Progress bars для кнопок
+        const smileProgress = document.getElementById('smileProgress');
+        const foodProgress = document.getElementById('foodProgress');
+        const toiletProgress = document.getElementById('toiletProgress');
+        const sleepProgress = document.getElementById('sleepProgress');
+        
+        // Модальные окна
+        const settingsModal = document.getElementById('settingsModal');
+        const costumesModal = document.getElementById('costumesModal');
+        const costumesContainer = document.getElementById('costumesContainer');
+        const howToPlayBtn = document.getElementById('howToPlay');
+        const shopBtn = document.getElementById('shopBtn');
+        const shopBtn2 = document.getElementById('shopBtn2');
+        const shopBtn3 = document.getElementById('shopBtn3');
+        const shopBtn4 = document.getElementById('shopBtn4');
+        const passBtn = document.getElementById('passBtn');
+        const passBtn2 = document.getElementById('passBtn2');
+        const passBtn3 = document.getElementById('passBtn3');
+        const passBtn4 = document.getElementById('passBtn4');
+        const backFromSettingsBtn = document.getElementById('backFromSettings');
+        const backFromCostumesBtn = document.getElementById('backFromCostumes');
+        const backFromShopBtn = document.getElementById('backFromShop');
+        const backFromPassBtn = document.getElementById('backFromPass');
+        const backFromManualBtn = document.getElementById('backFromManual');
+        const backFromNoPremiumBtn = document.getElementById('backFromNoPremium');
+        
+        const manualModal = document.getElementById('manualModal');
+        const manualImage = document.getElementById('manualImage');
+        const prevManualBtn = document.getElementById('prevManualBtn');
+        const nextManualBtn = document.getElementById('nextManualBtn');
+        const doneManualBtn = document.getElementById('doneManualBtn');
+        
+        const shopModal = document.getElementById('shopModal');
+        const shopContainer = document.getElementById('shopContainer');
+        const promoCodeInput = document.getElementById('promoCodeInput');
+        const applyPromoBtn = document.getElementById('applyPromoBtn');
+        const promoResult = document.getElementById('promoResult');
+        
+        const purchaseModal = document.getElementById('purchaseModal');
+        const purchaseResult = document.getElementById('purchaseResult');
+        const backFromPurchaseBtn = document.getElementById('backFromPurchase');
+        
+        const passModal = document.getElementById('passModal');
+        const passTab = document.getElementById('passTab');
+        const questsTab = document.getElementById('questsTab');
+        const passContainer = document.getElementById('passContainer');
+        const buyPassBtn = document.getElementById('buyPassBtn');
+        
+        const noPremiumModal = document.getElementById('noPremiumModal');
+        
+        // Уведомление о получении
+        const rewardNotification = document.getElementById('rewardNotification');
+        
+        // Кнопки действий
+        const smileBtn = document.getElementById('smileBtn');
+        const foodBtn = document.getElementById('foodBtn');
+        const toiletBtn = document.getElementById('toiletBtn');
+        const sleepBtn = document.getElementById('sleepBtn');
+        
+        // Элементы модального окна подтверждения очистки
+        const confirmClearModal = document.getElementById('confirmClearModal');
+        const confirmClearBtn = document.getElementById('confirmClearBtn');
+        const cancelClearBtn = document.getElementById('cancelClearBtn');
+        
+        let isLightOn = true;
+        let activeFoodItem = null;
+        let startX, startY, offsetX, offsetY;
+        let foodItemsEaten = 0;
+        const foodTypes = ['🍔', '🧃', '🥐'];
+        let isFoodSpawning = false;
+        
+        // Туалетные переменные
+        let toiletDoor = null;
+        let isDoorMoving = false;
+        let doorTimeout = null;
+        let toiletUsed = false;
+        
+        // Переменные для сна
+        let sleepTimeLeft = 60; // 1 минут в секундах
+        let sleepInterval = null;
+        let isSleeping = false;
+        let lastUpdateTime = 0;
+        let sleepStartTime = 0;
+        let accumulatedSleepTime = 0;
+
+        function initAlice() {
+            // Устанавливаем фон пасса из конфига
+            document.querySelector('.pass-modal').style.backgroundImage = `url('${passConfig.PassBg}')`;
+            
+            updateCounters();
+            setupAliceClick();
+            updateButtonsState();
+            checkActionsCompletion();
+            updateLevelProgress();
+            updateActionsProgress();
+            loadSelectedCostume();
+            
+            // Назначаем обработчики для всех кнопок костюмов и настроек
+            document.querySelectorAll('.costumes-btn').forEach(btn => {
+                btn.addEventListener('click', showCostumesModal);
+            });
+            
+            document.querySelectorAll('.settings-btn').forEach(btn => {
+                if (btn.classList.contains('costumes-btn') || btn.classList.contains('shop-btn') || btn.classList.contains('pass-btn')) return;
+                btn.addEventListener('click', showSettingsModal);
+            });
+            
+            // Назначаем обработчики для кнопок магазина
+            shopBtn.addEventListener('click', showShopModal);
+            shopBtn2.addEventListener('click', showShopModal);
+            shopBtn3.addEventListener('click', showShopModal);
+            shopBtn4.addEventListener('click', showShopModal);
+            
+            // Назначаем обработчики для кнопок пасса
+            passBtn.addEventListener('click', showPassModal);
+            passBtn2.addEventListener('click', showPassModal);
+            passBtn3.addEventListener('click', showPassModal);
+            passBtn4.addEventListener('click', showPassModal);
+            
+            // Обработчик для кнопки активации промокода
+            applyPromoBtn.addEventListener('click', applyPromoCode);
+            
+            // Обработчики для кнопок подтверждения очистки
+            confirmClearBtn.addEventListener('click', clearGameData);
+            cancelClearBtn.addEventListener('click', hideConfirmClearModal);
+            
+            // Обработчик кнопки закрытия окна покупки
+            backFromPurchaseBtn.addEventListener('click', hidePurchaseModal);
+            
+            // Обработчик кнопки закрытия окна отсутствия премиума
+            backFromNoPremiumBtn.addEventListener('click', hideNoPremiumModal);
+            
+            // Обработчики для пасса
+            passTab.addEventListener('click', () => switchPassTab('pass'));
+            questsTab.addEventListener('click', () => switchPassTab('quests'));
+            buyPassBtn.addEventListener('click', buyPremiumPass);
+            
+            // Обработчики для инструкции
+            prevManualBtn.addEventListener('click', prevManualPage);
+            nextManualBtn.addEventListener('click', nextManualPage);
+            doneManualBtn.addEventListener('click', hideManualModal);
+            backFromManualBtn.addEventListener('click', hideManualModal);
+            
+            // Обработчик нажатия клавиши 7
+            document.addEventListener('keydown', function(e) {
+                if (e.key === '7') {
+                    clearGameData(); // Удаляем данные без подтверждения
+                }
+            });
+            
+            // Проверяем новые акции при инициализации
+            checkNewStocks();
+            checkQuestsCompletion();
+            updateManualButtons();
+        }
+        
+        function showRewardNotification(message) {
+            rewardNotification.textContent = message;
+            rewardNotification.style.display = 'block';
+            
+            setTimeout(() => {
+                rewardNotification.style.display = 'none';
+            }, 2500);
+        }
+        
+        function checkQuestsCompletion() {
+            // Проверяем, не нужно ли сбросить счетчик кликов для квестов (например, при новом дне)
+            const now = Date.now();
+            const oneDay = 24 * 60 * 60 * 1000; // 24 часа в миллисекундах
+            if (now - questClicks.lastResetTime > oneDay) {
+                questClicks.clicksForQuests = 0;
+                questClicks.lastResetTime = now;
+                localStorage.setItem('aliceQuestClicks', JSON.stringify(questClicks));
+            }
+            
+            for (const [key, quest] of Object.entries(quests)) {
+                if (!completedQuests[key]) {
+                    let completed = true;
+                    
+                    if (quest.need.clicks && questClicks.clicksForQuests < quest.need.clicks) {
+                        completed = false;
+                    }
+                    
+                    if (quest.need.level && level < quest.need.level) {
+                        completed = false;
+                    }
+                    
+                    if (completed) {
+                        completedQuests[key] = true;
+                        tokens += quest.giftTokens;
+                        localStorage.setItem(`aliceTokens_season_${passConfig.Season}`, tokens.toString());
+                        localStorage.setItem('aliceCompletedQuests', JSON.stringify(completedQuests));
+                        
+                        // Показываем уведомление о завершении квеста
+                        showRewardNotification(`Получено ${quest.giftTokens} токенов!`);
+                    }
+                }
+            }
+        }
+        
+        function showPassModal() {
+            passModal.classList.add('active');
+            switchPassTab('pass');
+        }
+        
+        function hidePassModal() {
+            passModal.classList.remove('active');
+        }
+        
+        function showNoPremiumModal() {
+            noPremiumModal.classList.add('active');
+        }
+        
+        function hideNoPremiumModal() {
+            noPremiumModal.classList.remove('active');
+        }
+        
+        function buyPremiumPass() {
+            if (hasPremiumPass) {
+                showRewardNotification("У вас уже есть AET Premium Pass!");
+                return;
+            }
+            
+            if (crystals < 79) {
+                showRewardNotification("Недостаточно кристаллов!");
+                return;
+            }
+            
+            crystals -= 79;
+            hasPremiumPass = true;
+            localStorage.setItem('aliceCrystals', crystals.toString());
+            localStorage.setItem(`aliceHasPremiumPass_season_${passConfig.Season}`, 'true');
+            updateCounters();
+            
+            // Показываем уведомление
+            showRewardNotification("AET Premium Pass куплен!");
+            
+            // Обновляем пасс
+            setTimeout(() => {
+                showPassRewards();
+            }, 500);
+        }
+        
+        function switchPassTab(tab) {
+            if (tab === 'pass') {
+                passTab.classList.add('active');
+                questsTab.classList.remove('active');
+                showPassRewards();
+            } else {
+                passTab.classList.remove('active');
+                questsTab.classList.add('active');
+                showQuests();
+            }
+        }
+        
+        function showPassRewards() {
+            passContainer.innerHTML = '';
+            
+            // Сортируем награды по количеству требуемых токенов
+            const sortedRewards = Object.entries(passRewards).sort((a, b) => a[1].needTokens - b[1].needTokens);
+            
+            for (const [key, reward] of sortedRewards) {
+                const passItem = document.createElement('div');
+                passItem.className = 'pass-item';
+                
+                const isCollected = collectedPassRewards[key];
+                const isPremiumCollected = collectedPassRewards[key + '_premium'];
+                const hasEnoughTokens = tokens >= reward.needTokens;
+                
+                // Создаем контент для элемента пасса
+                const passContent = document.createElement('div');
+                passContent.className = 'pass-item-content';
+                
+                // Добавляем изображение обычного подарка
+                const regularImage = document.createElement('img');
+                regularImage.src = reward.png;
+                regularImage.className = 'pass-item-image';
+                regularImage.alt = "Подарок";
+                passItem.appendChild(regularImage);
+                
+                // Добавляем контент (прогресс и кнопки)
+                passItem.appendChild(passContent);
+                
+                // Добавляем изображение премиум подарка
+                const premiumImage = document.createElement('img');
+                premiumImage.src = reward.pngPremium;
+                premiumImage.className = `pass-item-premium ${hasPremiumPass ? '' : 'locked'}`;
+                premiumImage.alt = "Премиум подарок";
+                passItem.appendChild(premiumImage);
+                
+                // Если токенов достаточно, показываем кнопки
+                if (hasEnoughTokens) {
+                    // Создаем контейнер для кнопок
+                    const buttonsContainer = document.createElement('div');
+                    buttonsContainer.className = 'pass-buttons-container';
+                    
+                    // Если обычный подарок еще не получен
+                    if (!isCollected) {
+                        // Кнопка для обычного подарка
+                        const regularBtn = document.createElement('button');
+                        regularBtn.className = 'pass-item-claim pass-item-claim-regular';
+                        regularBtn.textContent = 'ЗАБРАТЬ';
+                        regularBtn.addEventListener('click', () => collectPassReward(key, reward, false));
+                        buttonsContainer.appendChild(regularBtn);
+                    } else {
+                        // Текст "Получено" для обычного подарка
+                        const claimedText = document.createElement('div');
+                        claimedText.className = 'pass-claimed-text';
+                        claimedText.textContent = 'Получено';
+                        buttonsContainer.appendChild(claimedText);
+                    }
+                    
+                    // Если премиум подарок еще не получен и есть премиум доступ
+                    if (hasPremiumPass && !isPremiumCollected) {
+                        // Кнопка для премиум подарка
+                        const premiumBtn = document.createElement('button');
+                        premiumBtn.className = 'pass-item-claim pass-item-claim-premium';
+                        premiumBtn.textContent = 'ЗАБРАТЬ';
+                        premiumBtn.addEventListener('click', () => collectPassReward(key, reward, true));
+                        buttonsContainer.appendChild(premiumBtn);
+                    } else if (hasPremiumPass && isPremiumCollected) {
+                        // Текст "Получено" для премиум подарка
+                        const claimedText = document.createElement('div');
+                        claimedText.className = 'pass-claimed-text pass-claimed-text-premium';
+                        claimedText.textContent = 'Получено';
+                        buttonsContainer.appendChild(claimedText);
+                    }
+                    
+                    passContent.appendChild(buttonsContainer);
+                } else {
+                    // Если токенов недостаточно, показываем прогресс
+                    const progressContainer = document.createElement('div');
+                    progressContainer.className = 'pass-progress-container';
+                    
+                    const progressBar = document.createElement('div');
+                    progressBar.className = 'pass-progress-bar';
+                    progressBar.style.width = `${Math.min(100, (tokens / reward.needTokens) * 100)}%`;
+                    
+                    progressContainer.appendChild(progressBar);
+                    passContent.appendChild(progressContainer);
+                    
+                    const progressText = document.createElement('div');
+                    progressText.className = 'pass-item-name';
+                    progressText.textContent = `${tokens} / ${reward.needTokens}`;
+                    passContent.insertBefore(progressText, progressContainer);
+                }
+                
+                passContainer.appendChild(passItem);
+            }
+            
+            setupPassScroll();
+        }
+        
+function collectPassReward(key, reward, isPremium) {
+    let message = "Получено: ";
+    
+    if (isPremium && hasPremiumPass) {
+        // Выдаем премиум награду
+        if (reward.giftPremium.type === "clicks") {
+            clickCount += reward.giftPremium.value;
+            message += `${reward.giftPremium.value} кликов (премиум)`;
+        } else if (reward.giftPremium.type === "crystals") {
+            crystals += reward.giftPremium.value;
+            message += `${reward.giftPremium.value} кристаллов (премиум)`;
+        } else if (reward.giftPremium.type === "costume") {
+            unlockedCostumes[reward.giftPremium.value] = true;
+            message += `костюм "${costumes[reward.giftPremium.value].name}" (премиум)`;
+        }
+        
+        // Помечаем награду как полученную
+        collectedPassRewards[key + '_premium'] = true;
+    } else {
+        // Выдаем обычную награду
+        if (reward.giftUsually.type === "clicks") {
+            clickCount += reward.giftUsually.value;
+            message += `${reward.giftUsually.value} кликов`;
+        } else if (reward.giftUsually.type === "crystals") {
+            crystals += reward.giftUsually.value;
+            message += `${reward.giftUsually.value} кристаллов`;
+        } else if (reward.giftUsually.type === "costume") {
+            unlockedCostumes[reward.giftUsually.value] = true;
+            message += `костюм "${costumes[reward.giftUsually.value].name}"`;
+        }
+        
+        // Помечаем награду как полученную
+        collectedPassRewards[key] = true;
+    }
+    
+    // Обновляем данные
+    localStorage.setItem('aliceClickCount', clickCount.toString());
+    localStorage.setItem('aliceCrystals', crystals.toString());
+    localStorage.setItem('aliceUnlockedCostumes', JSON.stringify(unlockedCostumes));
+    localStorage.setItem(`aliceCollectedPassRewards_season_${passConfig.Season}`, JSON.stringify(collectedPassRewards));
+    
+    // Обновляем счетчики и пасс
+    updateCounters();
+    showPassRewards();
+    
+    // Показываем уведомление
+    showRewardNotification(message);
+}
+        
+        function showQuests() {
+            passContainer.innerHTML = '';
+            
+            for (const [key, quest] of Object.entries(quests)) {
+                const questItem = document.createElement('div');
+                questItem.className = 'pass-item';
+                
+                const isCompleted = completedQuests[key];
+                let progress = 0;
+                
+                if (quest.need.clicks) {
+                    progress = Math.min(100, (questClicks.clicksForQuests / quest.need.clicks) * 100);
+                } else if (quest.need.level) {
+                    progress = Math.min(100, (level / quest.need.level) * 100);
+                }
+                
+                questItem.innerHTML = `
+                    <img src="${quest.png}" class="pass-item-image" alt="${quest.name}">
+                    <div class="pass-item-content">
+                        <div class="pass-item-name">${quest.name}</div>
+                        <div class="pass-item-task">${quest.description}</div>
+                        <div class="pass-progress-container">
+                            <div class="pass-progress-bar" style="width: ${progress}%"></div>
+                        </div>
+                    </div>
+                `;
+                
+                passContainer.appendChild(questItem);
+            }
+            
+            setupPassScroll();
+        }
+        
+        function setupPassScroll() {
+            const container = passContainer;
+            const scrollbar = document.getElementById('passScrollbarThumb');
+            
+            function updateScrollbar() {
+                const scrollRatio = container.scrollTop / (container.scrollHeight - container.clientHeight);
+                const thumbPosition = scrollRatio * (container.clientWidth - scrollbar.clientWidth);
+                scrollbar.style.left = `${thumbPosition}px`;
+            }
+            
+            container.addEventListener('scroll', updateScrollbar);
+            
+            // Обработчик для перемещения скролла при перетаскивании ползунка
+            let isDragging = false;
+            let startX;
+            
+            scrollbar.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                startX = e.clientX;
+                e.preventDefault();
+            });
+            
+            scrollbar.addEventListener('touchstart', function(e) {
+                isDragging = true;
+                startX = e.touches[0].clientX;
+                e.preventDefault();
+            }, { passive: false });
+            
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                
+                const deltaX = e.clientX - startX;
+                const containerWidth = container.clientWidth;
+                const scrollWidth = container.scrollWidth;
+                
+                const scrollRatio = deltaX / containerWidth;
+                container.scrollTop = scrollRatio * (scrollWidth - container.clientWidth);
+                
+                startX = e.clientX;
+            });
+            
+            document.addEventListener('touchmove', function(e) {
+                if (!isDragging) return;
+                
+                const deltaX = e.touches[0].clientX - startX;
+                const containerWidth = container.clientWidth;
+                const scrollWidth = container.scrollWidth;
+                
+                const scrollRatio = deltaX / containerWidth;
+                container.scrollTop = scrollRatio * (scrollWidth - container.clientWidth);
+                
+                startX = e.touches[0].clientX;
+                e.preventDefault();
+            }, { passive: false });
+            
+            document.addEventListener('mouseup', function() {
+                isDragging = false;
+            });
+            
+            document.addEventListener('touchend', function() {
+                isDragging = false;
+            });
+            
+            updateScrollbar();
+        }
+        
+        function prevManualPage() {
+            if (manualPage > 1) {
+                manualPage--;
+                updateManualPage();
+            }
+        }
+        
+        function nextManualPage() {
+            if (manualPage < maxManualPages) {
+                manualPage++;
+                updateManualPage();
+            }
+        }
+        
+        function updateManualPage() {
+            manualImage.src = `${manualPage}Manual.png`;
+            updateManualButtons();
+        }
+        
+        function updateManualButtons() {
+            prevManualBtn.style.display = manualPage === 1 ? 'none' : 'block';
+            
+            if (manualPage === maxManualPages) {
+                nextManualBtn.style.display = 'none';
+                doneManualBtn.style.display = 'block';
+            } else {
+                nextManualBtn.style.display = 'block';
+                doneManualBtn.style.display = 'none';
+            }
+        }
+        
+        function checkNewStocks() {
+            for (const [key, stock] of Object.entries(stocks)) {
+                // Если акция еще не была куплена и условия выполнены
+                if (!purchasedStocks[key] && clickCount >= stock.requirements.clicks && level >= stock.requirements.level) {
+                    // Если акция еще не была отмечена как новая
+                    if (newStocks[key] === undefined) {
+                        newStocks[key] = true;
+                        localStorage.setItem('aliceNewStocks', JSON.stringify(newStocks));
+                    }
+                }
+            }
+        }
+        
+        function showPurchaseModal(message) {
+            purchaseResult.textContent = message;
+            purchaseModal.classList.add('active');
+        }
+        
+        function hidePurchaseModal() {
+            purchaseModal.classList.remove('active');
+        }
+        
+        function showConfirmClearModal() {
+            confirmClearModal.classList.add('active');
+        }
+        
+        function hideConfirmClearModal() {
+            confirmClearModal.classList.remove('active');
+        }
+        
+        function clearGameData() {
+            // Очищаем все данные в localStorage
+            localStorage.removeItem('aliceClickCount');
+            localStorage.removeItem('aliceXP');
+            localStorage.removeItem('aliceLevel');
+            localStorage.removeItem('aliceSelectedCostume');
+            localStorage.removeItem('aliceUsedPromoCodes');
+            localStorage.removeItem('aliceActionsCompleted');
+            localStorage.removeItem('aliceActionsProgress');
+            localStorage.removeItem('aliceUnlockedCostumes');
+            localStorage.removeItem('alicePurchasedStocks');
+            localStorage.removeItem('aliceNewStocks');
+            localStorage.removeItem('aliceCrystals');
+            localStorage.removeItem('aliceQuestClicks');
+            
+            // Удаляем данные пасса для текущего сезона
+            localStorage.removeItem(`aliceTokens_season_${passConfig.Season}`);
+            localStorage.removeItem(`aliceHasPremiumPass_season_${passConfig.Season}`);
+            localStorage.removeItem(`aliceCollectedPassRewards_season_${passConfig.Season}`);
+            
+            localStorage.removeItem('aliceCompletedQuests');
+            
+            // Сбрасываем все переменные
+            clickCount = 0;
+            xp = 0;
+            level = 0;
+            crystals = 0;
+            tokens = 0;
+            hasPremiumPass = false;
+            selectedCostume = 'default';
+            usedPromoCodes = [];
+            actionsCompleted = {
+                smile: false,
+                food: false,
+                toilet: false,
+                sleep: false
+            };
+            actionsProgress = {
+                smile: 0,
+                food: 0,
+                toilet: 0,
+                sleep: 0
+            };
+            unlockedCostumes = {
+                default: true,
+                pink: false,
+                old: false
+            };
+            purchasedStocks = {};
+            newStocks = {};
+            collectedPassRewards = {};
+            completedQuests = {};
+            questClicks = {
+                clicksForQuests: 0,
+                lastResetTime: Date.now()
+            };
+            
+            // Обновляем интерфейс
+            updateCounters();
+            updateLevelProgress();
+            updateActionsProgress();
+            updateButtonsState();
+            loadSelectedCostume();
+            
+            // Сбрасываем состояния комнат
+            toiletUsed = false;
+            if (toiletDoor) {
+                openDoor();
+            }
+            
+            // Перезапускаем еду
+            if (document.getElementById('foodBg').style.display === 'block') {
+                spawnFood();
+            }
+            
+            // Сбрасываем таймер сна
+            if (sleepInterval) {
+                clearInterval(sleepInterval);
+                sleepInterval = null;
+            }
+            isSleeping = false;
+            sleepTimer.style.display = 'none';
+            
+            hideConfirmClearModal();
+        }
+        
+        function applyPromoCode() {
+            const promoCode = promoCodeInput.value.trim().toUpperCase();
+            const resultElement = promoResult;
+            
+            if (!promoCode) {
+                resultElement.textContent = "Введите промокод";
+                resultElement.className = "promo-result promo-error";
+                return;
+            }
+            
+            // Проверяем, использовался ли уже этот промокод
+            if (usedPromoCodes.includes(promoCode)) {
+                resultElement.textContent = "Этот промокод уже был использован";
+                resultElement.className = "promo-result promo-error";
+                return;
+            }
+            
+            // Проверяем, существует ли промокод
+            if (!promoCodes[promoCode]) {
+                resultElement.textContent = "Неверный промокод";
+                resultElement.className = "promo-result promo-error";
+                return;
+            }
+            
+            // Активируем промокод
+            const promo = promoCodes[promoCode];
+            let message = "Промокод активирован!";
+            
+            switch(promo.type) {
+                case "clicks":
+                    clickCount += promo.value;
+                    localStorage.setItem('aliceClickCount', clickCount.toString());
+                    message += ` Получено ${promo.value} кликов.`;
+                    break;
+                    
+                case "costume":
+                    unlockedCostumes[promo.value] = true;
+                    localStorage.setItem('aliceUnlockedCostumes', JSON.stringify(unlockedCostumes));
+                    message += ` Разблокирован костюм "${costumes[promo.value].name}".`;
+                    
+                    // Если это первый костюм, автоматически выбираем его
+                    if (selectedCostume === 'default' && promo.value !== 'default') {
+                        selectedCostume = promo.value;
+                        localStorage.setItem('aliceSelectedCostume', selectedCostume);
+                        loadSelectedCostume();
+                    }
+                    break;
+                    
+                case "crystals":
+                    crystals += promo.value;
+                    localStorage.setItem('aliceCrystals', crystals.toString());
+                    message += ` Получено ${promo.value} кристаллов.`;
+                    break;
+            }
+            
+            // Добавляем промокод в список использованных
+            usedPromoCodes.push(promoCode);
+            localStorage.setItem('aliceUsedPromoCodes', JSON.stringify(usedPromoCodes));
+            
+            // Обновляем счетчики
+            updateCounters();
+            checkUnlockedCostumes();
+            
+            // Показываем результат
+            resultElement.textContent = message;
+            resultElement.className = "promo-result promo-success";
+            
+            // Очищаем поле ввода
+            promoCodeInput.value = "";
+        }
+        
+        function loadSelectedCostume() {
+            const costume = costumes[selectedCostume];
+            if (costume) {
+                // Обновляем изображения во всех комнатах
+                document.querySelectorAll('.alice').forEach(img => {
+                    img.src = costume.mainImage;
+                });
+                aliceImg.src = costume.mainImage;
+            }
+        }
+        
+        function addXP(amount) {
+            xp += amount;
+            localStorage.setItem('aliceXP', xp.toString());
+            
+            // Проверяем, достигли ли нового уровня (XP для следующего уровня = 100 + (текущий уровень * 20))
+            const xpNeeded = 100 + (level * 20);
+            if (xp >= xpNeeded) {
+                level++;
+                xp = 0; // Сбрасываем XP при достижении нового уровня
+                localStorage.setItem('aliceLevel', level.toString());
+                localStorage.setItem('aliceXP', '0');
+                updateCounters();
+                
+                // Проверяем, разблокировались ли новые костюмы
+                checkUnlockedCostumes();
+                // Проверяем новые акции
+                checkNewStocks();
+                // Проверяем квесты
+                checkQuestsCompletion();
+            }
+            
+            updateLevelProgress();
+        }
+        
+        function updateCounters() {
+            document.querySelectorAll('.level-number').forEach(el => {
+                el.textContent = level;
+            });
+            clickCounter.textContent = clickCount;
+            crystalCounter.textContent = crystals;
+        }
+        
+        function updateLevelProgress() {
+            const xpNeeded = 100 + (level * 20);
+            const progress = (xp / xpNeeded) * 100;
+            document.querySelectorAll('.level-progress').forEach(el => {
+                el.style.setProperty('--progress', `${progress}%`);
+            });
+        }
+        
+        function updateActionsProgress() {
+            // Обновляем прогресс для каждого действия
+            smileProgress.style.height = `${actionsProgress.smile}%`;
+            foodProgress.style.height = `${actionsProgress.food}%`;
+            toiletProgress.style.height = `${actionsProgress.toilet}%`;
+            sleepProgress.style.height = `${actionsProgress.sleep}%`;
+            
+            // Сохраняем прогресс в localStorage
+            localStorage.setItem('aliceActionsProgress', JSON.stringify(actionsProgress));
+        }
+        
+        function updateButtonsState() {
+            if (actionsCompleted.smile) smileBtn.classList.add('completed');
+            else smileBtn.classList.remove('completed');
+            
+            if (actionsCompleted.food) foodBtn.classList.add('completed');
+            else foodBtn.classList.remove('completed');
+            
+            if (actionsCompleted.toilet) toiletBtn.classList.add('completed');
+            else toiletBtn.classList.remove('completed');
+            
+            if (actionsCompleted.sleep) sleepBtn.classList.add('completed');
+            else sleepBtn.classList.remove('completed');
+        }
+        
+        function setupAliceClick() {
+            const costume = costumes[selectedCostume];
+            const originalSrc = costume ? costume.mainImage : 'Alice.png';
+            const tapSrc = costume ? costume.tapImage : 'AliceTap.png';
+            
+            aliceContainer.addEventListener('click', function() {
+                const now = Date.now();
+                if (now - lastClickTime < clickDelay) return; // Проверяем задержку между кликами
+                lastClickTime = now;
+                
+                this.classList.add('click-animation');
+                setTimeout(() => {
+                    this.classList.remove('click-animation');
+                }, 200);
+                
+                // Меняем изображение на короткое время
+                const currentCostume = costumes[selectedCostume];
+                aliceImg.src = currentCostume ? currentCostume.tapImage : 'AliceTap.png';
+                
+                setTimeout(() => {
+                    aliceImg.src = currentCostume ? currentCostume.mainImage : 'Alice.png';
+                }, 200);
+                
+                clickCount++;
+                questClicks.clicksForQuests++; // Увеличиваем счетчик кликов для квестов
+                localStorage.setItem('aliceClickCount', clickCount.toString());
+                localStorage.setItem('aliceQuestClicks', JSON.stringify(questClicks));
+                clickCounter.textContent = clickCount;
+                
+                // Проверяем, разблокировались ли новые костюмы
+                checkUnlockedCostumes();
+                // Проверяем квесты
+                checkQuestsCompletion();
+                
+                // Обновляем прогресс для улыбки
+                if (!actionsCompleted.smile) {
+                    actionsProgress.smile = Math.min(100, clickCount * 10); // 10 кликов = 100%
+                    updateActionsProgress();
+                }
+                
+                // Проверяем, выполнено ли действие "улыбка"
+                if (clickCount >= 10 && !actionsCompleted.smile) {
+                    actionsCompleted.smile = true;
+                    localStorage.setItem('aliceActionsCompleted', JSON.stringify(actionsCompleted));
+                    smileBtn.classList.add('completed');
+                    // Даем меньше XP за выполнение действия на высоких уровнях
+                    const xpReward = Math.max(5, 25 - Math.floor(level / 2));
+                    addXP(xpReward);
+                    checkActionsCompletion();
+                }
+            });
+        }
+        
+        function checkUnlockedCostumes() {
+            let updated = false;
+            
+            for (const [key, costume] of Object.entries(costumes)) {
+                if (!unlockedCostumes[key] && 
+                    clickCount >= costume.clicksRequired && 
+                    level >= costume.levelRequired) {
+                    unlockedCostumes[key] = true;
+                    updated = true;
+                }
+            }
+            
+            if (updated) {
+                localStorage.setItem('aliceUnlockedCostumes', JSON.stringify(unlockedCostumes));
+                if (costumesModal.classList.contains('active')) {
+                    showCostumes();
+                }
+            }
+        }
+        
+        function startSleepTimer() {
+            if (isSleeping) return;
+            
+            isSleeping = true;
+            sleepTimeLeft = 60; // Время секунды в минуты
+            sleepStartTime = Date.now();
+            lastUpdateTime = Date.now();
+            accumulatedSleepTime = 0;
+            updateSleepTimerDisplay();
+            sleepTimer.style.display = 'block';
+            
+            sleepInterval = setInterval(updateSleepTime, 1000);
+        }
+        
+        function updateSleepTime() {
+            const now = Date.now();
+            const deltaTime = now - lastUpdateTime;
+            lastUpdateTime = now;
+            
+            if (!isLightOn) { // Таймер работает только когда свет выключен
+                accumulatedSleepTime += deltaTime;
+                const timePassed = Math.floor(accumulatedSleepTime / 1000);
+                sleepTimeLeft = Math.max(0, 60 - timePassed);
+                updateSleepTimerDisplay();
+                
+                // Обновляем прогресс для сна
+                if (!actionsCompleted.sleep) {
+                    actionsProgress.sleep = Math.min(100, (60 - sleepTimeLeft) / 60 * 100);
+                    updateActionsProgress();
+                }
+                
+                if (sleepTimeLeft <= 0) {
+                    clearInterval(sleepInterval);
+                    isSleeping = false;
+                    
+                    // Помечаем действие как выполненное
+                    if (!actionsCompleted.sleep) {
+                        actionsCompleted.sleep = true;
+                        localStorage.setItem('aliceActionsCompleted', JSON.stringify(actionsCompleted));
+                        sleepBtn.classList.add('completed');
+                        // Даем меньше XP за выполнение действия на высоких уровнях
+                        const xpReward = Math.max(5, 25 - Math.floor(level / 2));
+                        addXP(xpReward);
+                        checkActionsCompletion();
+                    }
+                    
+                    sleepTimer.style.display = 'none';
+                }
+            }
+        }
+        
+        function updateSleepTimerDisplay() {
+            const minutes = Math.floor(sleepTimeLeft / 60);
+            const seconds = sleepTimeLeft % 60;
+            sleepTimer.textContent = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+        }
+        
+        function spawnFood() {
+            if (isFoodSpawning) return;
+            isFoodSpawning = true;
+            
+            foodItems.innerHTML = '';
+            foodItemsEaten = 0;
+            
+            foodTypes.forEach(food => {
+                const foodItem = document.createElement('div');
+                foodItem.className = 'food-item';
+                foodItem.dataset.food = food;
+                foodItem.textContent = food;
+                foodItems.appendChild(foodItem);
+            });
+            
+            setupFoodInteraction();
+            isFoodSpawning = false;
+        }
+        
+        function setupFoodInteraction() {
+            document.querySelectorAll('.food-item').forEach(food => {
+                food.addEventListener('mousedown', startDrag);
+                food.addEventListener('touchstart', startDrag, { passive: false });
+            });
+            
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('touchmove', drag, { passive: false });
+            document.addEventListener('mouseup', endDrag);
+            document.addEventListener('touchend', endDrag);
+        }
+        
+        function startDrag(e) {
+            e.preventDefault();
+            activeFoodItem = e.target.closest('.food-item');
+            if (!activeFoodItem) return;
+            
+            const rect = activeFoodItem.getBoundingClientRect();
+            
+            if (e.type === 'mousedown') {
+                startX = e.clientX;
+                startY = e.clientY;
+            } else if (e.type === 'touchstart') {
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+            }
+            
+            offsetX = startX - rect.left;
+            offsetY = startY - rect.top;
+            
+            activeFoodItem.classList.add('dragging');
+            activeFoodItem.style.position = 'fixed';
+            activeFoodItem.style.left = `${rect.left}px`;
+            activeFoodItem.style.top = `${rect.top}px`;
+        }
+        
+        function drag(e) {
+            if (!activeFoodItem) return;
+            e.preventDefault();
+            
+            let clientX, clientY;
+            if (e.type === 'mousemove') {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            } else if (e.type === 'touchmove') {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            }
+            
+            activeFoodItem.style.left = `${clientX - offsetX}px`;
+            activeFoodItem.style.top = `${clientY - offsetY}px`;
+        }
+        
+        function endDrag(e) {
+            if (!activeFoodItem) return;
+            
+            const aliceRect = foodAliceContainer.getBoundingClientRect();
+            const foodRect = activeFoodItem.getBoundingClientRect();
+            
+            if (checkCollision(foodRect, aliceRect)) {
+                activeFoodItem.classList.add('eating');
+                setTimeout(() => {
+                    foodItemsEaten++;
+                    
+                    // Обновляем прогресс для еды
+                    if (!actionsCompleted.food) {
+                        actionsProgress.food = Math.min(100, foodItemsEaten / 3 * 100);
+                        updateActionsProgress();
+                    }
+                    
+                    if (foodItemsEaten >= 3 && !actionsCompleted.food) {
+                        actionsCompleted.food = true;
+                        localStorage.setItem('aliceActionsCompleted', JSON.stringify(actionsCompleted));
+                        foodBtn.classList.add('completed');
+                        // Даем меньше XP за выполнение действия на высоких уровнях
+                        const xpReward = Math.max(5, 25 - Math.floor(level / 2));
+                        addXP(xpReward);
+                        checkActionsCompletion();
+                    }
+                    
+                    if (foodItemsEaten >= 3) {
+                        setTimeout(spawnFood, 500);
+                    }
+                }, 300);
+            } else {
+                activeFoodItem.classList.remove('dragging');
+                activeFoodItem.style.position = '';
+                activeFoodItem.style.left = '';
+                activeFoodItem.style.top = '';
+            }
+            
+            activeFoodItem = null;
+        }
+        
+        function checkCollision(rect1, rect2) {
+            return !(
+                rect1.right < rect2.left || 
+                rect1.left > rect2.right || 
+                rect1.bottom < rect2.top || 
+                rect1.top > rect2.bottom
+            );
+        }
+        
+        function createToiletDoor() {
+            const toiletRoom = document.getElementById('toiletBg');
+            
+            // Создаем дверь
+            toiletDoor = document.createElement('div');
+            toiletDoor.className = 'toilet-door';
+            toiletRoom.appendChild(toiletDoor);
+            
+            setupDoorInteraction();
+        }
+
+        function setupDoorInteraction() {
+            let startX = 0;
+            let isDragging = false;
+            
+            // Добавляем обработчики для мыши
+            toiletDoor.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                startX = e.clientX;
+                e.preventDefault();
+            });
+            
+            // Добавляем обработчики для touch-устройств
+            toiletDoor.addEventListener('touchstart', function(e) {
+                isDragging = true;
+                startX = e.touches[0].clientX;
+                e.preventDefault();
+            }, { passive: false });
+            
+            // Обработчик движения для мыши
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging || !toiletDoor) return;
+                
+                const moveX = e.clientX - startX;
+                const newPosition = Math.min(0, Math.max(-15, moveX / 10));
+                
+                if (toiletUsed) {
+                    openDoor();
+                    return;
+                }
+                
+                toiletDoor.style.transform = `translateX(${newPosition}vh) translateY(-50%)`;
+                
+                // Обновляем прогресс для туалета
+                if (!actionsCompleted.toilet) {
+                    actionsProgress.toilet = Math.min(100, Math.abs(newPosition) / 15 * 100);
+                    updateActionsProgress();
+                }
+                
+                if (newPosition <= -12 && !isDoorMoving) {
+                    closeDoor();
+                }
+            });
+            
+            // Обработчик движения для touch-устройств
+            document.addEventListener('touchmove', function(e) {
+                if (!isDragging || !toiletDoor) return;
+                
+                const moveX = e.touches[0].clientX - startX;
+                const newPosition = Math.min(0, Math.max(-15, moveX / 10));
+                
+                if (toiletUsed) {
+                    openDoor();
+                    return;
+                }
+                
+                toiletDoor.style.transform = `translateX(${newPosition}vh) translateY(-50%)`;
+                
+                // Обновляем прогресс для туалета
+                if (!actionsCompleted.toilet) {
+                    actionsProgress.toilet = Math.min(100, Math.abs(newPosition) / 15 * 100);
+                    updateActionsProgress();
+                }
+                
+                if (newPosition <= -12 && !isDoorMoving) {
+                    closeDoor();
+                }
+                
+                e.preventDefault();
+            }, { passive: false });
+            
+            // Обработчик отпускания для мыши
+            document.addEventListener('mouseup', function() {
+                if (!isDragging) return;
+                isDragging = false;
+                
+                if (!isDoorMoving && !toiletUsed) {
+                    toiletDoor.style.transform = 'translateX(0) translateY(-50%)';
+                }
+            });
+            
+            // Обработчик отпускания для touch-устройств
+            document.addEventListener('touchend', function() {
+                if (!isDragging) return;
+                isDragging = false;
+                
+                if (!isDoorMoving && !toiletUsed) {
+                    toiletDoor.style.transform = 'translateX(0) translateY(-50%)';
+                }
+            });
+        }
+
+        function closeDoor() {
+            if (isDoorMoving) return;
+            
+            isDoorMoving = true;
+            toiletDoor.style.transform = 'translateX(-15vh) translateY(-50%)';
+            
+            doorTimeout = setTimeout(() => {
+                openDoor();
+                toiletUsed = true;
+                
+                // Помечаем действие как выполненное
+                if (!actionsCompleted.toilet) {
+                    actionsCompleted.toilet = true;
+                    localStorage.setItem('aliceActionsCompleted', JSON.stringify(actionsCompleted));
+                    toiletBtn.classList.add('completed');
+                    // Даем меньше XP за выполнение действия на высоких уровнях
+                    const xpReward = Math.max(5, 25 - Math.floor(level / 2));
+                    addXP(xpReward);
+                    checkActionsCompletion();
+                }
+            }, 5000);
+        }
+
+        function openDoor() {
+            isDoorMoving = false;
+            toiletDoor.style.transform = 'translateX(0) translateY(-50%)';
+            if (doorTimeout) {
+                clearTimeout(doorTimeout);
+                doorTimeout = null;
+            }
+        }
+        
+        function changeRoom(roomId) {
+            document.querySelectorAll('.room').forEach(room => {
+                room.style.display = 'none';
+            });
+            document.getElementById(roomId).style.display = 'block';
+            
+            if (roomId === 'sleepBg') {
+                lightSwitch.style.display = 'flex';
+                darkOverlay.style.display = isLightOn ? 'none' : 'block';
+                sleepTimer.style.display = isLightOn ? 'none' : 'block';
+                
+                if (!isLightOn && !actionsCompleted.sleep && !isSleeping) {
+                    startSleepTimer();
+                }
+            } else {
+                lightSwitch.style.display = 'none';
+                sleepTimer.style.display = 'none';
+            }
+            
+            if (roomId === 'foodBg') {
+                if (foodItems.children.length === 0) {
+                    spawnFood();
+                }
+            }
+            
+            if (roomId === 'toiletBg') {
+                if (!toiletDoor) {
+                    createToiletDoor();
+                } else {
+                    openDoor();
+                }
+            }
+            
+            // Показываем счетчики только в главной комнате
+            if (roomId === 'smileBg') {
+                clickCounter.style.display = 'flex';
+                crystalCounter.style.display = 'flex';
+            } else {
+                clickCounter.style.display = 'none';
+                crystalCounter.style.display = 'none';
+            }
+        }
+        
+        function toggleLight() {
+            isLightOn = !isLightOn;
+            darkOverlay.style.display = isLightOn ? 'none' : 'block';
+            sleepTimer.style.display = isLightOn ? 'none' : 'block';
+            
+            if (!isLightOn && !actionsCompleted.sleep && !isSleeping) {
+                startSleepTimer();
+            }
+        }
+        
+        function checkActionsCompletion() {
+            // Проверяем, все ли действия выполнены
+            if (actionsCompleted.smile && actionsCompleted.food && 
+                actionsCompleted.toilet && actionsCompleted.sleep) {
+                
+                // Начисляем кристаллы и токены за завершенный день
+                crystals += 1;
+                tokens += 50;
+                localStorage.setItem('aliceCrystals', crystals.toString());
+                localStorage.setItem(`aliceTokens_season_${passConfig.Season}`, tokens.toString());
+                updateCounters();
+                
+                // Сбрасываем выполненные действия для нового дня
+                resetDailyActions();
+            }
+        }
+        
+        function resetDailyActions() {
+            actionsCompleted = {
+                smile: false,
+                food: false,
+                toilet: false,
+                sleep: false
+            };
+            
+            actionsProgress = {
+                smile: 0,
+                food: 0,
+                toilet: 0,
+                sleep: 0
+            };
+            
+            // Сбрасываем счетчик кликов для квестов при новом дне
+            questClicks.clicksForQuests = 0;
+            questClicks.lastResetTime = Date.now();
+            localStorage.setItem('aliceQuestClicks', JSON.stringify(questClicks));
+            
+            localStorage.setItem('aliceActionsCompleted', JSON.stringify(actionsCompleted));
+            localStorage.setItem('aliceActionsProgress', JSON.stringify(actionsProgress));
+            updateButtonsState();
+            updateActionsProgress();
+            
+            // Сбрасываем состояния комнат
+            toiletUsed = false;
+            if (toiletDoor) {
+                openDoor();
+            }
+            
+            // Перезапускаем еду
+            if (document.getElementById('foodBg').style.display === 'block') {
+                spawnFood();
+            }
+            
+            // Сбрасываем таймер сна
+            if (sleepInterval) {
+                clearInterval(sleepInterval);
+                sleepInterval = null;
+            }
+            isSleeping = false;
+            sleepTimer.style.display = 'none';
+        }
+        
+        function showSettingsModal() {
+            settingsModal.classList.add('active');
+        }
+        
+        function hideSettingsModal() {
+            settingsModal.classList.remove('active');
+        }
+        
+        function showCostumesModal() {
+            costumesModal.classList.add('active');
+            showCostumes();
+        }
+        
+        function hideCostumesModal() {
+            costumesModal.classList.remove('active');
+        }
+        
+        function showShopModal() {
+            shopModal.classList.add('active');
+            promoCodeInput.value = "";
+            promoResult.textContent = "";
+            promoResult.className = "promo-result";
+            showStocks();
+        }
+        
+        function hideShopModal() {
+            shopModal.classList.remove('active');
+        }
+        
+        function showStocks() {
+            shopContainer.innerHTML = '';
+            
+            // Добавляем акции в магазин
+            for (const [key, stock] of Object.entries(stocks)) {
+                // Показываем только доступные и некупленные акции
+                if (!purchasedStocks[key] && clickCount >= stock.requirements.clicks && level >= stock.requirements.level) {
+                    const stockItem = document.createElement('div');
+                    stockItem.className = 'shop-item';
+                    
+                    stockItem.innerHTML = `
+                        <img src="${stock.title}" class="shop-image" alt="${stock.name}">
+                    `;
+                    
+                    stockItem.addEventListener('click', () => purchaseStock(key));
+                    shopContainer.appendChild(stockItem);
+                }
+            }
+            
+            // Если нет доступных акций
+            if (shopContainer.children.length === 0) {
+                shopContainer.innerHTML = '<div style="text-align: center; padding: 2vh;">Нет доступных акций</div>';
+            }
+            
+            // Настраиваем скролл
+            setupShopScroll();
+        }
+        
+        function purchaseStock(stockKey) {
+            const stock = stocks[stockKey];
+            
+            // Проверяем, достаточно ли средств для покупки
+            if (stock.price.type !== "free") {
+                if (stock.price.type === "clicks" && clickCount < stock.price.value) {
+                    showRewardNotification("Недостаточно кликов!");
+                    return;
+                }
+                
+                if (stock.price.type === "crystals" && crystals < stock.price.value) {
+                    showRewardNotification("Недостаточно кристаллов!");
+                    return;
+                }
+            }
+            
+            // Списываем средства
+            if (stock.price.type === "clicks") {
+                clickCount -= stock.price.value;
+                localStorage.setItem('aliceClickCount', clickCount.toString());
+            } else if (stock.price.type === "crystals") {
+                crystals -= stock.price.value;
+                localStorage.setItem('aliceCrystals', crystals.toString());
+            }
+            
+            // Добавляем акцию в список купленных
+            purchasedStocks[stockKey] = true;
+            localStorage.setItem('alicePurchasedStocks', JSON.stringify(purchasedStocks));
+            
+            // Убираем метку "НОВОЕ!"
+            if (newStocks[stockKey]) {
+                delete newStocks[stockKey];
+                localStorage.setItem('aliceNewStocks', JSON.stringify(newStocks));
+            }
+            
+            // Применяем бонусы из акции
+            let message = "Получено: ";
+            const bonuses = [];
+            
+            if (Array.isArray(stock.value)) {
+                // Если акция содержит несколько бонусов
+                stock.value.forEach(item => {
+                    if (typeof item === "string") {
+                        // Костюм
+                        unlockedCostumes[item] = true;
+                        localStorage.setItem('aliceUnlockedCostumes', JSON.stringify(unlockedCostumes));
+                        bonuses.push(`костюм "${costumes[item].name}"`);
+                    } else {
+                        // Клики
+                        clickCount += item;
+                        localStorage.setItem('aliceClickCount', clickCount.toString());
+                        bonuses.push(`${item} кликов`);
+                    }
+                });
+            } else if (stock.type === "pass") {
+                // Премиум пасс
+                hasPremiumPass = true;
+                localStorage.setItem(`aliceHasPremiumPass_season_${passConfig.Season}`, 'true');
+                bonuses.push("Premium Pass");
+            } else if (stock.type === "clicks") {
+                // Клики
+                clickCount += stock.value;
+                localStorage.setItem('aliceClickCount', clickCount.toString());
+                bonuses.push(`${stock.value} кликов`);
+            } else if (stock.type === "crystals") {
+                // Кристаллы
+                crystals += stock.value;
+                localStorage.setItem('aliceCrystals', crystals.toString());
+                bonuses.push(`${stock.value} кристаллов`);
+            }
+            
+            message += bonuses.join(" и ");
+            
+            // Обновляем счетчики
+            updateCounters();
+            checkUnlockedCostumes();
+            
+            // Показываем результат покупки
+            showRewardNotification(message);
+            
+            // Обновляем магазин
+            showStocks();
+        }
+        
+        function setupShopScroll() {
+            const container = shopContainer;
+            const scrollbar = document.getElementById('shopScrollbarThumb');
+            
+            function updateScrollbar() {
+                const scrollRatio = container.scrollLeft / (container.scrollWidth - container.clientWidth);
+                const thumbPosition = scrollRatio * (container.clientWidth - scrollbar.clientWidth);
+                scrollbar.style.left = `${thumbPosition}px`;
+            }
+            
+            container.addEventListener('scroll', updateScrollbar);
+            
+            // Обработчик для перемещения скролла при перетаскивании ползунка
+            let isDragging = false;
+            let startX;
+            
+            scrollbar.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                startX = e.clientX;
+                e.preventDefault();
+            });
+            
+            scrollbar.addEventListener('touchstart', function(e) {
+                isDragging = true;
+                startX = e.touches[0].clientX;
+                e.preventDefault();
+            }, { passive: false });
+            
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                
+                const deltaX = e.clientX - startX;
+                const containerWidth = container.clientWidth;
+                const scrollWidth = container.scrollWidth;
+                
+                const scrollRatio = deltaX / containerWidth;
+                container.scrollLeft = scrollRatio * (scrollWidth - container.clientWidth);
+                
+                startX = e.clientX;
+            });
+            
+            document.addEventListener('touchmove', function(e) {
+                if (!isDragging) return;
+                
+                const deltaX = e.touches[0].clientX - startX;
+                const containerWidth = container.clientWidth;
+                const scrollWidth = container.scrollWidth;
+                
+                const scrollRatio = deltaX / containerWidth;
+                container.scrollLeft = scrollRatio * (scrollWidth - container.clientWidth);
+                
+                startX = e.touches[0].clientX;
+                e.preventDefault();
+            }, { passive: false });
+            
+            document.addEventListener('mouseup', function() {
+                isDragging = false;
+            });
+            
+            document.addEventListener('touchend', function() {
+                isDragging = false;
+            });
+            
+            updateScrollbar();
+        }
+        
+        function showCostumes() {
+            costumesContainer.innerHTML = '';
+            
+            // Создаем категорию "Доступные"
+            const availableCategory = document.createElement('div');
+            availableCategory.className = 'costume-category';
+            availableCategory.innerHTML = '<div class="costume-category-title">Доступные</div><div class="costume-grid" id="availableCostumes"></div>';
+            costumesContainer.appendChild(availableCategory);
+            
+            const availableGrid = document.getElementById('availableCostumes');
+            
+            // Создаем категорию "Заблокированные"
+            const lockedCategory = document.createElement('div');
+            lockedCategory.className = 'costume-category';
+            lockedCategory.innerHTML = '<div class="costume-category-title">Заблокированные</div><div class="costume-grid" id="lockedCostumes"></div>';
+            costumesContainer.appendChild(lockedCategory);
+            
+            const lockedGrid = document.getElementById('lockedCostumes');
+            
+            // Добавляем костюмы в соответствующие категории
+            for (const [key, costume] of Object.entries(costumes)) {
+                const costumeItem = document.createElement('div');
+                costumeItem.className = `costume-item ${unlockedCostumes[key] ? '' : 'locked'}`;
+                if (selectedCostume === key) {
+                    costumeItem.classList.add('selected-costume');
+                }
+                
+                costumeItem.innerHTML = `
+                    <img src="${costume.titleImage}" class="costume-image" alt="${costume.name}">
+                    <div class="costume-name">${costume.name}</div>
+                    <div class="costume-info">${costume.infoText}</div>
+                    <div class="costume-price ${unlockedCostumes[key] ? '' : 'locked'}">
+                        ${unlockedCostumes[key] ? 'Доступен' : costume.priceText}
+                    </div>
+                `;
+                
+                if (unlockedCostumes[key]) {
+                    costumeItem.addEventListener('click', () => selectCostume(key));
+                    availableGrid.appendChild(costumeItem);
+                } else {
+                    lockedGrid.appendChild(costumeItem);
+                }
+            }
+            
+            // Настраиваем скролл
+            setupCostumesScroll();
+        }
+        
+        function selectCostume(costumeKey) {
+            selectedCostume = costumeKey;
+            localStorage.setItem('aliceSelectedCostume', selectedCostume);
+            loadSelectedCostume();
+            showCostumes(); // Обновляем список костюмов, чтобы показать новый выбранный
+        }
+        
+        function setupCostumesScroll() {
+            const container = costumesContainer;
+            const scrollbar = document.getElementById('scrollbarThumb');
+            
+            function updateScrollbar() {
+                const scrollRatio = container.scrollTop / (container.scrollHeight - container.clientHeight);
+                const thumbPosition = scrollRatio * (container.clientWidth - scrollbar.clientWidth);
+                scrollbar.style.left = `${thumbPosition}px`;
+            }
+            
+            container.addEventListener('scroll', updateScrollbar);
+            
+            // Обработчик для перемещения скролла при перетаскивания ползунка
+            let isDragging = false;
+            let startX;
+            
+            scrollbar.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                startX = e.clientX;
+                e.preventDefault();
+            });
+            
+            scrollbar.addEventListener('touchstart', function(e) {
+                isDragging = true;
+                startX = e.touches[0].clientX;
+                e.preventDefault();
+            }, { passive: false });
+            
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                
+                const deltaX = e.clientX - startX;
+                const containerWidth = container.clientWidth;
+                const scrollWidth = container.scrollWidth;
+                
+                const scrollRatio = deltaX / containerWidth;
+                container.scrollTop = scrollRatio * (scrollWidth - container.clientWidth);
+                
+                startX = e.clientX;
+            });
+            
+            document.addEventListener('touchmove', function(e) {
+                if (!isDragging) return;
+                
+                const deltaX = e.touches[0].clientX - startX;
+                const containerWidth = container.clientWidth;
+                const scrollWidth = container.scrollWidth;
+                
+                const scrollRatio = deltaX / containerWidth;
+                container.scrollTop = scrollRatio * (scrollWidth - container.clientWidth);
+                
+                startX = e.touches[0].clientX;
+                e.preventDefault();
+            }, { passive: false });
+            
+            document.addEventListener('mouseup', function() {
+                isDragging = false;
+            });
+            
+            document.addEventListener('touchend', function() {
+                isDragging = false;
+            });
+            
+            updateScrollbar();
+        }
+        
+        function showManualModal() {
+            manualModal.classList.add('active');
+            manualPage = 1;
+            updateManualPage();
+        }
+        
+        function hideManualModal() {
+            manualModal.classList.remove('active');
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            initAlice();
+            lightSwitch.addEventListener('click', toggleLight);
+            
+            howToPlayBtn.addEventListener('click', showManualModal);
+            backFromSettingsBtn.addEventListener('click', hideSettingsModal);
+            backFromCostumesBtn.addEventListener('click', hideCostumesModal);
+            backFromShopBtn.addEventListener('click', hideShopModal);
+            backFromPassBtn.addEventListener('click', hidePassModal);
+            backFromManualBtn.addEventListener('click', hideManualModal);
+        });
+    </script>
+</body>
+</html>
